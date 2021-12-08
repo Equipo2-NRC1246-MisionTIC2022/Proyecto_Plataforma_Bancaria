@@ -1,14 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Principal from './components/Principal';
-import Inicio from './components/Inicio';
-import Login from './components/Login';
-import RegistroUsuario from './components/RegistroUsuario';
-import Consultas from './components/Consultas';
-import SimulacionPago from './components/SimulacionPago';
-import Contactenos from './components/Contactenos';
-import Solicitudes from './components/Solicitudes';
-import Dashboard from './components/Dashboard';
+import Principal from './pages/Principal';
+import Inicio from './pages/Inicio';
+import Login from './pages/Login';
+import RegistroUsuario from './pages/RegistroUsuario';
+import Consultas from './pages/Consultas';
+import SimulacionPago from './pages/SimulacionPago';
+import Contactenos from './pages/Contactenos';
+import Solicitudes from './pages/Solicitudes';
+import Dashboard from './pages/Dashboard';
 import { BrowserRouter as Router, Route, Routes} from "react-router-dom";
 
 ReactDOM.render(

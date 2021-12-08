@@ -1,4 +1,5 @@
 import { Link} from "react-router-dom";
+import BarraInferior from "../components/BarraInferior";
 function Inicio() {
   return (
   <body> 
@@ -49,7 +50,7 @@ function Inicio() {
         </div>
       </div>
     </section>{/* <!-- End Hero --> */}
-  
+    <BarraInferior/> 
   </body>
   );
 }
