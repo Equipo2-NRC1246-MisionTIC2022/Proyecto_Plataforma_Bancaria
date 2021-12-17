@@ -66,7 +66,7 @@ function Contactenos() {
               </div>
             </div>
   
-            <div className="col-lg-5 col-md-12" data-aos="fade-up" data-aos-delay="300">
+            <div className="col-lg-5 col-md-12" data-aos="fade-up" data-aos-delay="200">
               <form action="forms/contact.php" method="post" role="form" className="php-email-form">
                 <div className="form-group">
                   <input type="text" name="name" className="form-control" id="name" placeholder="Tu nombre" required/>

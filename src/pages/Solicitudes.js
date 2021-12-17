@@ -1,116 +1,154 @@
-import { Link} from "react-router-dom";
-import React, {Component, useState} from "react";
+import { Link } from "react-router-dom";
+import React, { Component, useState } from "react";
 
-import {Dropdown, DropdownButton, Form, FormControl,InputGroup,Table,textarea, Button} from "react-bootstrap";
-import { AiFillDollarCircle,
+import { Dropdown, DropdownButton, Form, FormControl, InputGroup, Table, textarea, Button } from "react-bootstrap";
+import {
+  AiFillDollarCircle,
   AiFillEuroCircle,
   AiFillMoneyCollect,
   AiFillBank,
-  AiOutlineSearch }  from "react-icons/ai";
+  AiOutlineSearch
+} from "react-icons/ai";
 import BarraInferior from "../components/BarraInferior";
 import BarraSuperior from "../components/BarraSuperior";
-  function Solicitudes(){
-    const [Nombre, setNombre]=useState("");
-    const [numbererror,setnumbererror]=useState(0);
-    const Valor = (e)=>{
-      const value=e.target.value;
-      const empty=value.length==0
-      const onlinum=/^[0-9\b]+$/g.test(value);
-      console.log(empty)
-      console.log(onlinum)
-      if(empty){
-        setnumbererror(1)
-      }else if(!onlinum){
-        setnumbererror(2)
-      }
 
-      if(!empty && onlinum){
-        setnumbererror(0)
-      }
-      setNombre(value);
-    }
-  return(
-    <body>
-    <BarraSuperior/> 
-    <main id="main">
 
-     {/* <!-- ======= Breadcrumbs Section ======= -->*/}
-      <section className="breadcrumbs">
-        <div className="container">
 
-          <div className="d-flex justify-content-between align-items-center">
-            <h2>Solicitud de prestamo</h2>
-            <ol>
-              <li><a href="index.html">Home</a></li>
-              <li>Solicitud de prestamo</li>
-            </ol>
-          </div>
-        </div>
-      </section>{/*<!-- End Breadcrumbs Section -->*/}
+
+
+function Solicitudes() {  
+  const Solicitud = (e) => {
+    
+    var h1="",h2="",h3="",h4="",h5="",h6="",h7="", h8="", h9=""
+    var Error=0
+  e.preventDefault();
+
+  const pago = {
+    valor: e.target.valor.value,
+    cuotas: e.target.cuotas.value
+  };
+
   
-      {/* <!-- ======= Contact Section ======= --> */}
-      <section id="contact" className="contact">
-        <div className="container">
-        <form>
-        <div className="row ">
-        <div className="col-lg-2">
-
-        </div>
-        <div className="col-lg-4">
-        Nueva solicitud
-        </div>
-        </div>
-          <div className="row">
-
-          <div className="col-lg-4"></div>
-            <div className=" col-lg-5 col-md-12" data-aos="fade-up" data-aos-delay="300">
-              <form action="forms/contact.php" method="post" role="form" className="php-email-form">
-                <div className="form-group">
-                  <input type="text" name="name" className="form-control" id="name" placeholder="Valor solicitado" onChange={Valor} required/>
-                  {
-                        (numbererror==1)&&(<label>este campo es obligatorio</label>)
-
-                       }
-                       {
-                        (numbererror==2)&&(<label>solo se permiten numeros</label>)
-
-                       }
-                </div>
-                <div className="form-group">
-                  <input type="email" className="form-control" name="email" id="email" placeholder="Cuotas" onChange={Valor} required/>
-                  {
-                        (numbererror==1)&&(<label>este campo es obligatorio</label>)
-
-                       }
-                       {
-                        (numbererror==2)&&(<label>solo se permiten numeros</label>)
-
-                       }
-                </div>
-                <div className="form-group">
-                  <textarea className="form-control" name="message" rows="5" placeholder="Comentarios a agregar" required></textarea>
-                </div>
-                <div className="my-3">
-                  <div className="loading">Loading</div>
-                  <div className="error-message"></div>
-                  <div className="sent-message">Your message has been sent. Thank you!</div>
-                </div>
-                <div className="text-center"><Button variant="light" >Enviar Solicitud</Button></div>
-              </form>
-            </div>
-  
-          </div>
-          </form>
-        </div>
-      </section>{/* <!-- End Contact Section --> */}
-    </main>{/* <!-- End #main --> */}
-    <BarraInferior/> 
-  </body>)
-
+  //validacion solicitado completo
+  //+
+  //Solo letras
+  const onlinum=/^[0-9\b]+$/g.test(pago.valor);
+  if( !onlinum){
+    Error=1
+    h1="solo se permiten numeros"
+    
+  }
+  const onlinum1=/^[0-9\b]+$/g.test(pago.cuotas);
+  if( !onlinum1){
+    Error=1
+    h2="Cuotas: solo se permiten numeros"
+    
+  }
+  if(pago.valor < "100000"){
+    Error=1
+    h3="Valor: el valor debe ser minimo de cien mil pesos"
+    
+  }
+  //validacion id
+  //solo numeros
+  if(pago.cuotas > 6){
+    Error=1
+    h4="Cuota: maximo 6 meses"
+    
   }
   
+  if(Error == 0){ 
+    window.location.assign("http://localhost:3000/login")
+    
+  }else if (Error == 1 ){
+      alert(`Corrija los siguientes errores para poder registrar su usuario de forma correcta:\n\n${h1}\n${h2}\n${h3}\n${h4}`);
+  }
+
   
-  
+//window.location.assign("https://www.delftstack.com");
+
+
+  }
+  return (
+    <body>
+      <BarraSuperior />
+      <main id="main">
+
+        {/* <!-- ======= Breadcrumbs Section ======= -->*/}
+        <section className="breadcrumbs">
+          <div className="container">
+
+            <div className="d-flex justify-content-between align-items-center">
+              <h2>Solicitud de prestamo</h2>
+              <ol>
+                <li><a href="index.html">Home</a></li>
+                <li>Solicitud de prestamo</li>
+              </ol>
+            </div>
+          </div>
+        </section>{/*<!-- End Breadcrumbs Section -->*/}
+
+        {/* <!-- ======= Contact Section ======= --> */}
+        <section id="portfolio-details" class="portfolio-details">
+          <div className="container">
+            <form className="portfolio-info" data-aos="fade-up" onSubmit={Solicitud}>
+              <div className="row ">
+                <div className="col-lg-2">
+
+                </div>
+                <div className="col-sm-2">
+                  <p style={{fontWeight: "bold", textAlign: "left"}}>Nueva solicitud</p>
+                </div>
+              </div>
+              <div className="row">
+
+              <div className="row ">
+
+                <div className="col-sm-5" style={{textAlign:"right"}}>
+                  <p style={{fontStyle: "italic"}}>Valor solicitado</p>
+                </div>
+                <div className="col-sm-5"style={{textAlign:"left"}}>
+                  <input type="text" name="valor" className="form-control" id="name" placeholder="Valor solicitado" required />
+                        
+                  <br/>
+                </div>
+              </div>
+
+              <div className="row ">
+
+              <div className="col-sm-5" style={{textAlign:"right"}}>
+                <p style={{fontStyle: "italic"}}>Tiempo en meses de cancelación</p>
+              </div>
+              <div className="col-sm-5"style={{textAlign:"left"}}>
+                <input type="text" name="cuotas" className="form-control"  id="email" placeholder="Cuotas"  required />
+                        
+                <br/>
+              </div>
+              </div>
+
+              <div className="row ">
+
+                <div className="col-sm-5" style={{textAlign:"right"}}>
+                  <p style={{fontStyle: "italic"}}>Comentarios a agregar</p>
+                </div>
+                <div className="col-sm-5"style={{textAlign:"left"}}>
+                  <textarea className="form-control" name="message" rows="5" placeholder="Comentarios a agregar" ></textarea>
+                  <br/>
+                </div>
+              </div>
+              <div className="text-center"><Button type="submit"variant="light" style={{boxShadow: "0px 0 6px rgba(5, 1, 37, 0.8)"}}>Enviar Solicitud</Button></div>  
+              </div>
+            </form>
+          </div>
+        </section>{/* <!-- End Contact Section --> */}
+      </main>{/* <!-- End #main --> */}
+      <BarraInferior />
+    </body>)
+
+}
+
+
+
 
 
 export default Solicitudes;

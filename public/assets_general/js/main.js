@@ -60,26 +60,6 @@
   window.addEventListener('load', navbarlinksActive)
   onscroll(document, navbarlinksActive)
 
-   /**
-   * Second Navbar links active state on scroll
-   */
-    let navbarlinks1 = select('#navbar1 .scrollto', true)
-    const navbarlinksActive1 = () => {
-      let position = window.scrollY + 200
-      navbarlinks1.forEach(navbar1link => {
-        if (!navbar1link.hash) return
-        let section = select(navbar1link.hash)
-        if (!section) return
-        if (position >= section.offsetTop && position <= (section.offsetTop + section.offsetHeight)) {
-          navbar1link.classList.add('active')
-        } else {
-          navbar1link.classList.remove('active')
-        }
-      })
-    }
-    window.addEventListener('load', navbarlinksActive1)
-    onscroll(document, navbarlinksActive1)
-
   /**
    * Scrolls to an element with header offset
    */
@@ -97,7 +77,7 @@
       behavior: 'smooth'
     })
   }
-  
+
   /**
    * Toggle .header-scrolled class to #header when page is scrolled
    */
@@ -150,26 +130,6 @@
   }, true)
 
   /**
-   * Second Mobile nav toggle
-   */
-   on('click', '.mobile1-nav-toggle', function(e) {
-    select('#navbar1').classList.toggle('navbar1-mobile')
-    this.classList.toggle('bi-list')
-    this.classList.toggle('bi-x')
-  })
-
-  /**
-   * Second Mobile nav dropdowns activate
-   */
-  on('click', '.navbar1 .dropdown > a', function(e) {
-    if (select('#navbar1').classList.contains('navbar1-mobile')) {
-      e.preventDefault()
-      this.nextElementSibling.classList.toggle('dropdown-active')
-    }
-  }, true)
-
-
-  /**
    * Scrool with ofset on links with a class name .scrollto
    */
   on('click', '.scrollto', function(e) {
@@ -186,25 +146,6 @@
       scrollto(this.hash)
     }
   }, true)
-
-    /**
-   * Second Scrool with ofset on links with a class name .scrollto
-   */
-     on('click', '.scrollto', function(e) {
-      if (select(this.hash)) {
-        e.preventDefault()
-  
-        let navbar1 = select('#navbar1')
-        if (navbar1.classList.contains('navbar1-mobile')) {
-          navbar1.classList.remove('navbar1-mobile')
-          let navbar1Toggle = select('.mobile1-nav-toggle')
-          navbar1Toggle.classList.toggle('bi-list')
-          navbar1Toggle.classList.toggle('bi-x')
-        }
-        scrollto(this.hash)
-      }
-    }, true)
-  
 
   /**
    * Scroll with ofset on page load with hash links in the url

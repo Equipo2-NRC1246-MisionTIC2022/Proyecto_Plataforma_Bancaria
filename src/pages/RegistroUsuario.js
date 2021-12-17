@@ -1,74 +1,107 @@
 import { Link} from "react-router-dom";
-import React,{useState} from "react";
-import {Dropdown, DropdownButton, Form, FormControl,InputGroup} from "react-bootstrap";
+import React, {useState, useEffect} from "react";
+import {Dropdown, DropdownButton, Form, FormControl,InputGroup, Button} from "react-bootstrap";
+
 function RegistroUsuario() {
-    const [Nombre, setNombre]=useState("");
-    const [numbererror,setnumbererror]=useState(0);
-    const nombre = (e)=>{
-      const value=e.target.value;
-      const empty=value.length==0
-      const onlilet=/^[a-zA-Z ]*$/g.test(value);
-      console.log(empty)
-      console.log(onlilet)
-      if(empty){
-        setnumbererror(1)
-      }else if(!onlilet){
-        setnumbererror(2)
-      }
+  const Registrar_usuario = (e) => {
+    var h1="",h2="",h3="",h4="",h5="",h6="",h7="", h8="", h9="", h10=""
+    var Error=0
+    e.preventDefault();
+  
+    const datos_registro = {
+      nombre: e.target.name.value,
+      id: e.target.username.value,
+      nacimiento: e.target.dateborn.value,
+      expedicion: e.target.dateExp.value,
+      ingresos: e.target.ingresos.value,
+      egresos: e.target.egresos.value,
+      pass: e.target.pass.value
+    };
 
-      if(!empty && onlilet){
-        setnumbererror(0)
-      }
-      setNombre(value);
+    //Conexion al backend a traves de la api
+    const registrar = () => {
+      fetch(`http://localhost:8000/api/crear_usuario`, {
+        method: "POST",
+        body: JSON.stringify(datos_registro),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((res) => res.json())
+        .then((response) => {
+          alert(response.mensaje);
+          window.location.href = "/login";
+        })
+        .catch((error) => console.error("Error:", error))
+    };
+    //validacion nombre completo
+    //+
+    //Solo letras
+    const onlilet=/^[a-zA-Z ]*$/g.test(datos_registro.nombre);
+    if (!onlilet) {
+      Error=1
+      h1="Nombre completo: No se permiten números."
     }
-
-    const id = (e)=>{
-      const value=e.target.value;
-      const empty=value.length==0;
-      const onlinum=/^[0-9\b]+$/g.test(value);
-      const min=value.length!=10
-
-      if(empty){
-        setnumbererror(1)
-      }else if(!onlinum){
-        setnumbererror(3)
-      }else if(min){
-        setnumbererror(4)
-      }else{
-        setnumbererror(0)
-      }
-      const ingresos = (e)=>{
-        const value=e.target.value;
-        const empty=value.length==0;
-        const onlinum=/^[0-9\b]+$/g.test(value);
-        const min=value.length<3
-        if(empty){
-          setnumbererror(1)
-        }else if(!onlinum){
-          setnumbererror(3)
-        }else if(min){
-          setnumbererror(4)
-        }else{
-          setnumbererror(0)
-        }
-      }
-        const egresos = (e)=>{
-          const value=e.target.value;
-          const empty=value.length==0;
-          const onlinum=/^[0-9\b]+$/g.test(value);
-          const min=value.length<3
-          if(empty){
-            setnumbererror(1)
-          }else if(!onlinum){
-            setnumbererror(3)
-          }else if(min){
-            setnumbererror(4)
-          }else{
-            setnumbererror(0)
-          }
-        }
-
+    //validacion id
+    //solo numeros
+    const onlinum=/^[0-9\b]+$/g.test(datos_registro.id);
+    if(!onlinum){
+      Error=1
+      h2="Número de identificación: Solo se permiten números."
     }
+    //max caracteres
+    const caracteres=datos_registro.id.length
+    if(caracteres < 10 || caracteres>  10){
+      Error=1
+      h3="Número de identificación: Solo se permiten 10 caracteres."
+    }
+    //validacion mayor de edad
+    if(datos_registro.nacimiento > "2003/12/10"){
+      Error=1
+      h4="Fecha de nacimiento: Solo mayores de edad."
+    }
+    //validacion fecha invalidad
+    if(datos_registro.expedicion>"2021/12/31"){
+      Error=1
+      h5="Fecha de expedición:Fecha invalida."
+    }
+    
+    //validacion ingresos
+    const ing_num=/^[0-9\b]+$/g.test(datos_registro.ingresos);
+    const egr_num=/^[0-9\b]+$/g.test(datos_registro.egresos);
+    const pass=/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[^\W]{8,40}/g.test(datos_registro.pass);
+    if(datos_registro.ingresos < 877803){
+      Error=1
+      h6="Valor de ingresos: Ingresos bajos."
+    }
+    if(!ing_num){
+      Error=1
+      h7="Valor de ingresos: No se permiten letras."
+    }
+    //validacion egresos
+    if(datos_registro.egresos < 50000){
+      Error=1
+      h8="Valor de egresos: Egresos bajos."   
+    }
+    if(!egr_num){
+      Error=1
+      h9="Valor de egresos: No se permiten letras."
+    }
+//validacion contraseña
+    if(!pass){
+      Error=1
+      h10="Contraseña: No es válida de acuerdo a los parametros establecidos."
+    }
+    
+    if(Error == 0){ 
+      registrar();
+      
+    }else if (Error == 1){
+        alert(`Corrija los siguientes errores para poder registrar su usuario de forma correcta:\n\n${h1}\n${h2}\n${h3}\n${h4}\n${h5}\n${h6}\n${h7}\n${h8}\n${h9}\n${h10}`);
+    }
+  };
+
+
 
   return (
   <body>
@@ -95,18 +128,11 @@ function RegistroUsuario() {
                     <p className="text-center small">Ingrese los siguientes datos para crear su cuenta</p>
                   </div>
 
-                  <form className="row g-3 needs-validation" novalidate>
+                  <form className="row g-3 needs-validation" novalidate onSubmit={Registrar_usuario}>
                     <div className="col-12">
                       <label for="yourName" className="form-label">Nombre completo</label>
-                      <input type="text" name="name" className="form-control" id="yourName" onChange={nombre} required/>
-                      {
-                        (numbererror==1)&&(<label>este campo es obligatorio</label>)
+                      <input type="text" name="name" className="form-control" id="yourName"  required/>
 
-                       }
-                       {
-                        (numbererror==2)&&(<label>Solo se permiten letras</label>)
-
-                       }
                       <div className="invalid-feedback">¡Por favor introduzca su nombre!</div>
                     </div>
 
@@ -122,19 +148,8 @@ function RegistroUsuario() {
                     <div className="col-12">
                       <label for="yourUsername" className="form-label">Número de identificación</label>
                       <div className="input-group has-validation">
-                        <input type="text" name="username" className="form-control" id="yourUsername" onChange={id}  required/>
-                        {
-                        (numbererror==1)&&(<label >este campo es obligatorio</label>)
+                        <input type="text" name="username" className="form-control" id="yourUsername"   required/>
 
-                       }
-                       {
-                        (numbererror==3)&&(<label>Solo se permiten numeros</label>)
-
-                       }
-                       {
-                        (numbererror==4)&&(<label>debe ser un total de 10 digitos</label>)
-
-                       }
                         <div className="invalid-feedback">Por favor ingrese un numero de identificacion</div>
                       </div>
                     </div>
@@ -156,21 +171,9 @@ function RegistroUsuario() {
                       <label for="yourValueIng" className="form-label">Valor de ingresos</label>
                       <InputGroup className="mb-3" >
                     <InputGroup.Text>$</InputGroup.Text>
-                    <InputGroup.Text>0.000</InputGroup.Text>
-                    <FormControl aria-label="Dollar amount (with dot and three decimal places)" />
+                    <InputGroup.Text>1.000.000</InputGroup.Text>
+                    <FormControl aria-label="Dollar amount (with dot and three decimal places)" name="ingresos" />
                   </InputGroup>
-                  {
-                        (numbererror==1)&&(<label>este campo es obligatorio</label>)
-
-                       }
-                       {
-                        (numbererror==3)&&(<label>Solo se permiten numeros</label>)
-
-                       }
-                       {
-                        (numbererror==4)&&(<label>debe ser mayor a 3 digitos</label>)
-
-                       }
                   
                       <div className="invalid-feedback">Ingrese el valor de sus ingresos</div>
                     </div>
@@ -180,22 +183,18 @@ function RegistroUsuario() {
                       <InputGroup className="mb-3" >
                     <InputGroup.Text >$</InputGroup.Text>
                     <InputGroup.Text>0.000</InputGroup.Text>
-                    <FormControl aria-label="Dollar amount (with dot and three decimal places)" />
+                    <FormControl aria-label="Dollar amount (with dot and three decimal places)" name="egresos" />
                   </InputGroup>
-                  {
-                        (numbererror==1)&&(<label>este campo es obligatorio</label>)
 
-                       }
-                       {
-                        (numbererror==3)&&(<label>Solo se permiten numeros</label>)
-
-                       }
-                       {
-                        (numbererror==4)&&(<label>debe ser mayor a 3 digitos</label>)
-
-                       }
                       <div className="invalid-feedback">Ingrese el valor de sus egresos</div>
                     </div>
+
+                  <div className="col-12">
+                    <label for="yourPass" className="form-label">Contraseña a asignar</label>
+                    <input type="text" name="pass" className="form-control" id="yourPass"  required/>
+
+                    <div style={{ fontSize: "small"}}><label>La contraseña puede contener letras (a-z) y números (0-9). Debe tener mínimo 8 caracteres, máximo 40. Mínimo debe contener un carácter en (1) mayúsculas y uno (1) en minúsculas. Mínimo debe contener un número del 0 al 9. La contraseña puede comenzar o contener un guion bajo (_) solamente. Ningún otro carácter está permitido.</label></div>
+                  </div>
 
                     <div className="col-12">
                       <div className="form-check">
@@ -205,7 +204,7 @@ function RegistroUsuario() {
                       </div>
                     </div>
                     <div className="col-12">
-                      <Link to="/index" button className="btn btn-primary w-100" type="submit">Crear cuenta</Link>
+                    <Button type="submit"  variant="primary">Crear cuenta</Button>{' '}
                     </div>
                     <div className="col-12">
                       <Link to="/login" className="small mb-0">¿Ya tiene una cuenta? <a >Ingrese</a></Link>

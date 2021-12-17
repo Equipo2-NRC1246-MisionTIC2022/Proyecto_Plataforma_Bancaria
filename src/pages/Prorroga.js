@@ -22,11 +22,12 @@ import { AiFillDollarCircle,
     }
     render(){
       return(<body>
-        <div className="col-lg-6">
+        <form>
+          <div className="col-lg-6">
             <h4>Prorroga</h4>
             </div>
             <br/><br/><br/>
-            <form>
+            
             <div className="col-lg-4">
 
           </div>

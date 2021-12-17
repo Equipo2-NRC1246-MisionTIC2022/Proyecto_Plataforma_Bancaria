@@ -1,5 +1,18 @@
 import { Link} from "react-router-dom";
-function Login() {
+import {Dropdown, DropdownButton, Form, FormControl,InputGroup, Button} from "react-bootstrap";
+function Login({recibir}) {
+
+
+  const iniciar_sesion = (e) => {
+    e.preventDefault();
+
+    const datos_incio_sesion = {
+      usuario: e.target.username.value,
+      pass: e.target.passwword.value
+    }
+    recibir(datos_incio_sesion)
+
+  };
   return (
   <body>
     <main id="main" style={{backgroundColor: "#f6f9ff"}}> 
@@ -25,35 +38,35 @@ function Login() {
                     <p className="text-center small">Ingrese su usuario y contraseña</p>
                   </div>
 
-                  <form className="row g-3 needs-validation" novalidate>
+                  <form className="row g-3 needs-validation" novalidate onSubmit={iniciar_sesion}>
                 
-                  <div class="col-12">
-                      <label for="yourUsername" class="form-label">Usuario</label>
-                      <div class="input-group has-validation">
-                        <span class="input-group-text" id="inputGroupPrepend">@</span>
-                        <input type="text" name="username" class="form-control" id="yourUsername" required/>
-                        <div class="invalid-feedback">Por favor ingrese su usuario.</div>
+                    <div class="col-12">
+                        <label for="yourUsername" class="form-label">Usuario</label>
+                        <div class="input-group has-validation">
+                          <span class="input-group-text" id="inputGroupPrepend">@</span>
+                          <input type="text" name="username" class="form-control" id="yourUsername" required/>
+                          <div class="invalid-feedback">Por favor ingrese su usuario.</div>
+                        </div>
                       </div>
-                    </div>
 
-                    <div class="col-12">
-                      <label for="yourPassword" class="form-label">Contraseña</label>
-                      <input type="password" name="passwword" class="form-control" id="yourPassword" required/>
-                      <div class="invalid-feedback">Por favor ingrese su contraseña</div>
-                    </div>
-
-                    <div class="col-12">
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="remember" value="true" id="rememberMe"/>
-                        <label class="form-check-label" for="rememberMe">Recordarme</label>
+                      <div class="col-12">
+                        <label for="yourPassword" class="form-label">Contraseña</label>
+                        <input type="password" name="passwword" class="form-control" id="yourPassword" required/>
+                        <div class="invalid-feedback">Por favor ingrese su contraseña</div>
                       </div>
-                    </div>
-                    <div class="col-12">
-                      <Link to="/index" class="btn btn-primary w-100" type="submit">Ingresar</Link>
-                    </div>
-                    <div class="col-12">
-                      <Link to="/registro"class="small mb-0">¿No tienes cuenta? <a>Crea una</a></Link>
-                    </div>
+
+                      <div class="col-12">
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" name="remember" value="true" id="rememberMe"/>
+                          <label class="form-check-label" for="rememberMe">Recordarme</label>
+                        </div>
+                      </div>
+                      <div class="col-12">
+                        <Button style={{float: "center"}} type="submit"  variant="primary">Ingresar</Button>{' '}
+                      </div>
+                      <div class="col-12">
+                        <Link to="/registro"class="small mb-0">¿No tienes cuenta? <a>Crea una</a></Link>
+                      </div>
                   </form>
 
                 </div>
