@@ -37,7 +37,6 @@ function Consultas() {
   var h1=0
   const consultarSolicitud = () => {
     h1=document.getElementById("id_user").value
-    establecerCodigo()
     fetch(`http://localhost:8000/api/get_solicitud/${h1}`, {
       method: "GET",
       headers: {
@@ -46,8 +45,16 @@ function Consultas() {
     })
       .then((res) => res.json())
       .then((response) => {
-          setValor(response.valor);
-          setTiempo(response.cuotas);
+          if(response.mensaje==undefined){
+            establecerCodigo()
+            setValor(response.valor);
+            setTiempo(response.cuotas);
+          }else{
+            alert(response.mensaje)
+            setValor(" ");
+            setTiempo(" ");
+            setCodigo(" ")
+          }
           })
         
       .catch((error) => console.error("Error:", error))
