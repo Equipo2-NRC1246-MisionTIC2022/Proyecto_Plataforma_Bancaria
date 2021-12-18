@@ -14,7 +14,7 @@ const App = () => {
   const [token, setToken] = useState("");
   const [usuario, setUsuario] = useState({});
 
-  const datos_inicio_sesion = (datos, nav) => {
+  const datos_inicio_sesion = (datos) => {
     fetch("http://localhost:8000/api/login", {
       method: "POST",
       body: JSON.stringify(datos),
@@ -28,7 +28,7 @@ const App = () => {
         setToken(response.token);
         setUsuario(response.usuario);
         if (response.usuario.rol === "Admin") {
-          nav("/dashboard");
+          window.location.href ="/dashboard";
         } else {
             window.location.href = "/index";
         }
@@ -42,14 +42,14 @@ const App = () => {
         <Router>
         <Routes>
             <Route exact path="/" element={<Inicio/>} />
-            <Route path="/registro" element={<RegistroUsuario/>} />
+            <Route path="/registro" element={<RegistroUsuario />} />
             <Route path="/login" element={<Login recibir={datos_inicio_sesion} />} />
             <Route path="/index" element={<Principal token={token} />} />
             <Route path="/consultas" element={<Consultas token={token}/>} />
-            <Route path="/simulacionpago" element={<SimulacionPago/>} />
-            <Route path="/contactenos" element={<Contactenos/>} />
-            <Route path="/solicitudes" element={<Solicitudes/>} />
-            <Route path="/dashboard" element={<Dashboard/>} />
+            <Route path="/simulacionpago" element={<SimulacionPago token={token}/>} />
+            <Route path="/contactenos" element={<Contactenos token={token}/>} />
+            <Route path="/solicitudes" element={<Solicitudes token={token}/>} />
+            <Route path="/dashboard" element={<Dashboard token={token}/>} />
         </Routes>
         </Router>
     </React.StrictMode>,

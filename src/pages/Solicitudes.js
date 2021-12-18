@@ -12,10 +12,6 @@ import {
 import BarraInferior from "../components/BarraInferior";
 import BarraSuperior from "../components/BarraSuperior";
 
-
-
-
-
 function Solicitudes() {  
   const Solicitud = (e) => {
     
@@ -24,29 +20,47 @@ function Solicitudes() {
   e.preventDefault();
 
   const pago = {
+    id_user:e.target.id_user.value,
     valor: e.target.valor.value,
-    cuotas: e.target.cuotas.value
+    cuotas: e.target.cuotas.value,
+    comentarios: e.target.message.value
+  };
+
+  const registrarSolicitud = () => {
+    fetch(`http://localhost:8000/api/crear_solicitud`, {
+      method: "POST",
+      body: JSON.stringify(pago),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        alert(response.mensaje);
+        window.location.href = "/solicitudes";
+      })
+      .catch((error) => console.error("Error:", error))
   };
 
   
   //validacion solicitado completo
   //+
   //Solo letras
-  const onlinum=/^[0-9\b]+$/g.test(pago.valor);
-  if( !onlinum){
+  const id=/^[0-9\b]+$/g.test(pago.valor);
+  if( !id){
     Error=1
-    h1="solo se permiten numeros"
+    h1="Valor: Solo se permiten numeros"
     
   }
-  const onlinum1=/^[0-9\b]+$/g.test(pago.cuotas);
-  if( !onlinum1){
+  const id1=/^[0-9\b]+$/g.test(pago.cuotas);
+  if( !id1){
     Error=1
     h2="Cuotas: solo se permiten numeros"
     
   }
   if(pago.valor < "100000"){
     Error=1
-    h3="Valor: el valor debe ser minimo de cien mil pesos"
+    h3="Valor: el valor debe ser minimo de cien mil pesos."
     
   }
   //validacion id
@@ -56,12 +70,25 @@ function Solicitudes() {
     h4="Cuota: maximo 6 meses"
     
   }
-  
+  //validacion id
+    //solo numeros
+  const onlinum=/^[0-9\b]+$/g.test(pago.id_user);
+  if(!onlinum){
+    Error=1
+    h5="Número de identificación: Solo se permiten números."
+  }
+  //max caracteres
+  const caracteres=pago.id_user.length
+  if(caracteres < 10 || caracteres>  10){
+    Error=1
+    h6="Número de identificación: Solo se permiten 10 caracteres."
+  }
+
   if(Error == 0){ 
-    window.location.assign("http://localhost:3000/login")
+    registrarSolicitud();
     
   }else if (Error == 1 ){
-      alert(`Corrija los siguientes errores para poder registrar su usuario de forma correcta:\n\n${h1}\n${h2}\n${h3}\n${h4}`);
+      alert(`Corrija los siguientes errores para poder registrar su usuario de forma correcta:\n\n${h1}\n${h2}\n${h3}\n${h4}\n${h5}\n${h6}`);
   }
 
   
@@ -102,6 +129,17 @@ function Solicitudes() {
               </div>
               <div className="row">
 
+              <div className="row ">
+
+                <div className="col-sm-5" style={{textAlign:"right"}}>
+                  <p style={{fontStyle: "italic"}}>Confirmar cedula usuario</p>
+                </div>
+                <div className="col-sm-5"style={{textAlign:"left"}}>
+                  <input type="number" name="id_user" className="form-control" id="name" placeholder="Cédula" required />
+                        
+                  <br/>
+                </div>
+              </div>
               <div className="row ">
 
                 <div className="col-sm-5" style={{textAlign:"right"}}>

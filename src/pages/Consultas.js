@@ -11,9 +11,14 @@ import {
 import BarraInferior from "../components/BarraInferior";
 import BarraSuperior from "../components/BarraSuperior";
 
-export function Consultas() {
+function Consultas() {
+
   const [Estado, setEstado] = useState("hidden")
   const [Fondo, setFondo] = useState("assets_general/img/container.png")
+  const [Valor, setValor] = useState(" ")
+  const [Tiempo, setTiempo] = useState(" ")
+  const [Codigo, setCodigo] = useState()
+
 
   const cambiarEstado = () => {
     setEstado("visible")
@@ -23,6 +28,30 @@ export function Consultas() {
   const ocultarFormulario = () => {
     setEstado("hidden")
     setFondo("assets_general/img/container.png")
+  };
+
+  const establecerCodigo= () => {
+    var codigo=document.getElementById("id_user").value
+    setCodigo(codigo)
+  };
+
+
+  
+  const consultarSolicitud = () => {
+    establecerCodigo();
+    fetch(`http://localhost:8000/api/get_solicitud`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        alert("Registro encontrado");
+        setValor(JSON.stringify(response));
+        setTiempo(JSON.stringify(response));
+      })
+      .catch((error) => console.error("Error:", error))
   };
 
   return (
@@ -55,10 +84,10 @@ export function Consultas() {
                     <p>Codigo crédito</p>
                   </div>
                   <div className="col-sm-8">
-                    <input type="text" name="name" className="form-control" id="name" placeholder="Buscar codigo" required />
+                    <input type="number" name="id_user" className="form-control" id="id_user" placeholder="Buscar codigo" required />
                   </div>
                   <div className="col-sm-1" style={{ fontWeight: "bold", textAlign: "center" }}>
-                    <h3><AiOutlineSearch /></h3>
+                    <h3><AiOutlineSearch onClick={consultarSolicitud} /></h3>
                   </div>
                 </div>
               </div>
@@ -73,7 +102,7 @@ export function Consultas() {
                   <p style={{ fontWeight: "bold" }}>Codigo credito</p>
                 </div>
                 <div className="col-sm-7" style={{ textAlign: "left" }}>
-                  <input type="text" name="name" className="form-control" id="name" placeholder="Razon" value={Estado} readOnly />
+                  <input type="text" name="name" className="form-control" id="name" placeholder="Razon" value={Codigo} readOnly />
                   <br />
                 </div>
               </div>
@@ -84,7 +113,7 @@ export function Consultas() {
                   <p style={{ fontWeight: "bold" }}>Valor total</p>
                 </div>
                 <div className="col-sm-7" style={{ textAlign: "left" }}>
-                  <input type="text" name="name" className="form-control" id="name" placeholder="Razon" value={Estado} readOnly />
+                  <input type="text" name="name" className="form-control" id="name" placeholder="Razon" value={Valor} readOnly />
                   <br />
                 </div>
               </div>
@@ -95,7 +124,7 @@ export function Consultas() {
                   <p style={{ fontWeight: "bold" }}>Tiempo solicitado de cancelación</p>
                 </div>
                 <div className="col-sm-7" style={{ textAlign: "left" }}>
-                  <input type="text" name="name" className="form-control" id="name" placeholder="Razon" value={Estado} readOnly />
+                  <input type="text" name="name" className="form-control" id="name" placeholder="Razon" value={Tiempo} readOnly />
                   <br />
                 </div>
               </div>
@@ -105,7 +134,7 @@ export function Consultas() {
                   <p style={{ fontWeight: "bold" }}>Monto deuda</p>
                 </div>
                 <div className="col-sm-7" style={{ textAlign: "left" }}>
-                  <input type="text" name="name" className="form-control" id="name" placeholder="Razon" value={Estado} readOnly />
+                  <input type="text" name="name" className="form-control" id="name" placeholder="Razon" value={Tiempo} readOnly />
                   <br /><br />
                 </div>
               </div>
@@ -184,7 +213,7 @@ export function Consultas() {
       </main>{/* <!-- End #main --> */}
       <BarraInferior />
     </body>
-  );
+  )
 }
 
 export default Consultas;
