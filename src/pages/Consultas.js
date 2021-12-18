@@ -15,8 +15,8 @@ function Consultas() {
 
   const [Estado, setEstado] = useState("hidden")
   const [Fondo, setFondo] = useState("assets_general/img/container.png")
-  const [Valor, setValor] = useState(" ")
-  const [Tiempo, setTiempo] = useState(" ")
+  const [Valor, setValor] = useState([])
+  const [Tiempo, setTiempo] = useState([])
   const [Codigo, setCodigo] = useState()
 
 
@@ -34,12 +34,11 @@ function Consultas() {
     var codigo=document.getElementById("id_user").value
     setCodigo(codigo)
   };
-
-
-  
+  var h1=0
   const consultarSolicitud = () => {
-    establecerCodigo();
-    fetch(`http://localhost:8000/api/get_solicitud`, {
+    h1=document.getElementById("id_user").value
+    establecerCodigo()
+    fetch(`http://localhost:8000/api/get_solicitud/${h1}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -47,10 +46,10 @@ function Consultas() {
     })
       .then((res) => res.json())
       .then((response) => {
-        alert("Registro encontrado");
-        setValor(JSON.stringify(response));
-        setTiempo(JSON.stringify(response));
-      })
+          setValor(response.valor);
+          setTiempo(response.cuotas);
+          })
+        
       .catch((error) => console.error("Error:", error))
   };
 
@@ -79,7 +78,7 @@ function Consultas() {
 
             <div className="subcontainer">
               <div className="portfolio-info">
-                <div className="row">
+                <form className="row">
                   <div className="col-sm-2" style={{ fontWeight: "bold", textAlign: "center" }}>
                     <p>Codigo crédito</p>
                   </div>
@@ -87,9 +86,9 @@ function Consultas() {
                     <input type="number" name="id_user" className="form-control" id="id_user" placeholder="Buscar codigo" required />
                   </div>
                   <div className="col-sm-1" style={{ fontWeight: "bold", textAlign: "center" }}>
-                    <h3><AiOutlineSearch onClick={consultarSolicitud} /></h3>
+                    <h3><AiOutlineSearch onClick={consultarSolicitud}/></h3>
                   </div>
-                </div>
+                </form>
               </div>
             </div>
             <br />
@@ -134,7 +133,7 @@ function Consultas() {
                   <p style={{ fontWeight: "bold" }}>Monto deuda</p>
                 </div>
                 <div className="col-sm-7" style={{ textAlign: "left" }}>
-                  <input type="text" name="name" className="form-control" id="name" placeholder="Razon" value={Tiempo} readOnly />
+                  <input type="text" name="name" className="form-control" id="name" placeholder="Razon" value={Valor} readOnly />
                   <br /><br />
                 </div>
               </div>
