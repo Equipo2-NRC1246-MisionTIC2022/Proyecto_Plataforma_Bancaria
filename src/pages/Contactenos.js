@@ -1,7 +1,20 @@
 import { Link} from "react-router-dom";
+import React, { Component, useState, useEffect } from "react";
 import BarraInferior from "../components/BarraInferior";
 import BarraSuperior from "../components/BarraSuperior";
 function Contactenos() {
+  let [token, setToken] = useState('');
+  let [sw, setSw] = useState(true);
+
+    useEffect(() => {
+
+      const token_storage = window.localStorage.getItem("token-jwt");
+      if (token_storage) {
+        token = token_storage;
+      } else {
+        window.location.href="/";
+      }
+    }); 
   return (
   <body>
     <BarraSuperior/>  

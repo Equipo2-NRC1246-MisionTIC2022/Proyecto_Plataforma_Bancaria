@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dropdown, DropdownButton, Form, FormControl, InputGroup, Table, textarea, Button } from "react-bootstrap";
 import {
   AiFillDollarCircle,
@@ -13,12 +13,24 @@ import BarraSuperior from "../components/BarraSuperior";
 
 function Consultas() {
 
+  let [token, setToken] = useState('');
+  let [sw, setSw] = useState(true);
+
   const [Estado, setEstado] = useState("hidden")
   const [Fondo, setFondo] = useState("assets_general/img/container.png")
   const [Valor, setValor] = useState([])
   const [Tiempo, setTiempo] = useState([])
   const [Codigo, setCodigo] = useState()
 
+  useEffect(() => {
+
+    const token_storage = window.localStorage.getItem("token-jwt");
+    if (token_storage) {
+      token = token_storage;
+    } else {
+      window.location.href="/";
+    }
+  });
 
   const cambiarEstado = () => {
     setEstado("visible")

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Principal from './pages/Principal';
 import Inicio from './pages/Inicio';
 import Login from './pages/Login';
@@ -11,11 +11,31 @@ import Dashboard from './pages/Dashboard';
 import { BrowserRouter as Router, Route, Routes} from "react-router-dom";
 
 const App = () => {
-  const [token, setToken] = useState("");
-  const [usuario, setUsuario] = useState({});
+
+  let [token, setToken] = useState("");
+  let [usuario, setUsuario] = useState({});
+  let [sw, setSw] = useState(true);
+
+  useEffect(() => {
+    console.log(process.env);
+    const token_storage = window.localStorage.getItem("token-jwt");
+    const usuario_storage = JSON.parse(window.localStorage.getItem("usuario"));
+    if (token_storage && usuario_storage) {
+      if (sw) {
+        setToken(token_storage);
+        setUsuario(usuario_storage);
+        setSw(false);
+      }
+    } else {
+
+        setToken(undefined);
+        setUsuario(undefined);
+
+    }
+  });
 
   const datos_inicio_sesion = (datos) => {
-    fetch("http://localhost:8000/api/login", {
+    fetch(`http://localhost:8000/api/login`, {
       method: "POST",
       body: JSON.stringify(datos),
       headers: {
@@ -24,6 +44,13 @@ const App = () => {
     })
       .then((res) => res.json())
       .then((response) => {
+        window.localStorage.setItem("token-jwt", response.token);
+
+        window.localStorage.setItem(
+          "usuario",
+          JSON.stringify(response.usuario)
+        );
+
         alert(response.mensaje);
         setToken(response.token);
         setUsuario(response.usuario);
@@ -36,6 +63,11 @@ const App = () => {
       .catch((error) => console.error("Error:", error));
   };
 
+
+
+
+
+
   return (
     <div>
     <React.StrictMode>
@@ -44,12 +76,12 @@ const App = () => {
             <Route exact path="/" element={<Inicio/>} />
             <Route path="/registro" element={<RegistroUsuario />} />
             <Route path="/login" element={<Login recibir={datos_inicio_sesion} />} />
-            <Route path="/index" element={<Principal token={token} />} />
-            <Route path="/consultas" element={<Consultas token={token}/>} />
-            <Route path="/simulacionpago" element={<SimulacionPago token={token}/>} />
-            <Route path="/contactenos" element={<Contactenos token={token}/>} />
-            <Route path="/solicitudes" element={<Solicitudes token={token}/>} />
-            <Route path="/dashboard" element={<Dashboard token={token}/>} />
+            <Route path="/index" element={<Principal/>} />
+            <Route path="/consultas" element={<Consultas/>} />
+            <Route path="/simulacionpago" element={<SimulacionPago/>} />
+            <Route path="/contactenos" element={<Contactenos/>} />
+            <Route path="/solicitudes" element={<Solicitudes/>} />
+            <Route path="/dashboard" element={<Dashboard/>} />
         </Routes>
         </Router>
     </React.StrictMode>,

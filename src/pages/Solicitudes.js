@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import React, { Component, useState } from "react";
+import React, { Component, useState, useEffect } from "react";
 
 import { Dropdown, DropdownButton, Form, FormControl, InputGroup, Table, textarea, Button } from "react-bootstrap";
 import {
@@ -12,10 +12,22 @@ import {
 import BarraInferior from "../components/BarraInferior";
 import BarraSuperior from "../components/BarraSuperior";
 
-function Solicitudes() {  
+function Solicitudes() { 
+  let [token, setToken] = useState('');
+  let [sw, setSw] = useState(true);
+
+  useEffect(() => {
+
+    const token_storage = window.localStorage.getItem("token-jwt");
+    if (token_storage) {
+      token = token_storage;
+    } else {
+      window.location.href="/";
+    }
+  }); 
   const Solicitud = (e) => {
     
-    var h1="",h2="",h3="",h4="",h5="",h6="",h7="", h8="", h9=""
+    var h1="",h2="",h3="",h4="",h5="",h6=""
     var Error=0
   e.preventDefault();
 
