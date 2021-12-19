@@ -14,7 +14,59 @@ function Contactenos() {
       } else {
         window.location.href="/";
       }
-    }); 
+    });
+    
+    const Contacto_cliente = (e) => {
+      var h1="",h2=""
+      var Error=0
+      e.preventDefault();
+    
+      const mensaje_cliente = {
+        nombre: e.target.name.value,
+        correo: e.target.email.value,
+        asunto: e.target.subject.value,
+        mensaje: e.target.message.value
+      };
+  
+      //Conexion al backend a traves de la api
+      const registrar = () => {
+        fetch(`http://localhost:8000/api/contacto_cliente`, {
+          method: "POST",
+          body: JSON.stringify(mensaje_cliente),
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token-jwt": token
+          },
+        })
+          .then((res) => res.json())
+          .then((response) => {
+            alert(response.mensaje);
+            window.location.href = "/contactenos";
+          })
+          .catch((error) => console.error("Error:", error))
+      };
+      //validacion nombre completo
+      //+
+      //Solo letras
+      const onlilet=/^[a-zA-Z ]*$/g.test(mensaje_cliente.nombre);
+      if (!onlilet) {
+        Error=1
+        h1="Nombre: No se permiten números."
+      }
+
+      const emailval=/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(mensaje_cliente.correo);
+      if (!emailval) {
+        Error=1
+        h2="Email: Proporcione un correo válido."
+      }
+      
+      if(Error == 0){ 
+        registrar();
+        
+      }else if (Error == 1){
+          alert(`Corrija los siguientes errores para poder enviar su mensaje de forma correcta:\n\n${h1}\n${h2}`);
+      }
+    };
   return (
   <body>
     <BarraSuperior/>  
@@ -80,7 +132,7 @@ function Contactenos() {
             </div>
   
             <div className="col-lg-5 col-md-12" data-aos="fade-up" data-aos-delay="200">
-              <form action="forms/contact.php" method="post" role="form" className="php-email-form">
+              <form action="forms/contact.php" method="post" role="form" className="php-email-form" onSubmit={Contacto_cliente}>
                 <div className="form-group">
                   <input type="text" name="name" className="form-control" id="name" placeholder="Tu nombre" required/>
                 </div>

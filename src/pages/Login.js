@@ -42,9 +42,9 @@ function Login({recibir}) {
                   <form className="row g-3 needs-validation" novalidate onSubmit={iniciar_sesion}>
                 
                     <div class="col-12">
-                        <label for="yourUsername" class="form-label">Usuario</label>
+                        <label for="yourUsername" class="form-label">Número de identificación</label>
                         <div class="input-group has-validation">
-                          <span class="input-group-text" id="inputGroupPrepend">@</span>
+                          <span class="input-group-text" id="inputGroupPrepend">#</span>
                           <input type="number"  name="username" class="form-control" id="yourUsername" required/>
                           <div class="invalid-feedback">Por favor ingrese su usuario.</div>
                         </div>

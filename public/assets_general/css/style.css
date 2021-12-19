@@ -489,6 +489,17 @@ h1, h2, h3, h4, h5, h6 {
         max-width: 60px;
       }
 
+      .header-nav .nav-profile {
+        color: #012970;
+      }
+      .header-nav .nav-profile img {
+        max-height: 40px;
+      }
+      .header-nav .nav-profile span {
+        font-size: 14px;
+        font-weight: 600;
+      }
+      
 
 /*--------------------------------------------------------------
 # Navigation Menu
