@@ -10,12 +10,12 @@ function BarraSuperior() {
       const token_storage = window.localStorage.getItem("token-jwt");
       if (token_storage) {
         token = token_storage;
-        usuario=usuario_storage.nombre;
-        
+        usuario=setUsuario(usuario_storage.nombre);
       } else {
         window.location.href="/";
       }
     }); 
+
   let cerrar_sesion = () => {
     window.localStorage.removeItem("token-jwt");
     window.localStorage.removeItem("usuario");

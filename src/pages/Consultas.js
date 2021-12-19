@@ -15,13 +15,6 @@ function Consultas() {
 
   let [token, setToken] = useState('');
   let [sw, setSw] = useState(true);
-
-  const [Estado, setEstado] = useState("hidden")
-  const [Fondo, setFondo] = useState("assets_general/img/container.png")
-  const [Valor, setValor] = useState([])
-  const [Tiempo, setTiempo] = useState([])
-  const [Codigo, setCodigo] = useState()
-
   useEffect(() => {
 
     const token_storage = window.localStorage.getItem("token-jwt");
@@ -31,6 +24,12 @@ function Consultas() {
       window.location.href="/";
     }
   });
+
+  const [Estado, setEstado] = useState("hidden")
+  const [Fondo, setFondo] = useState("assets_general/img/container.png")
+  const [Valor, setValor] = useState([])
+  const [Tiempo, setTiempo] = useState([])
+  const [Codigo, setCodigo] = useState()
 
   const cambiarEstado = () => {
     setEstado("visible")
