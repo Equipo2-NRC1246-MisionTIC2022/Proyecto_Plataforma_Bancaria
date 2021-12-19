@@ -52,6 +52,7 @@ function Consultas() {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "auth-token-jwt": token
       },
     })
       .then((res) => res.json())
