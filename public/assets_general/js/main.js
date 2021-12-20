@@ -128,6 +128,15 @@
       this.nextElementSibling.classList.toggle('dropdown-active')
     }
   }, true)
+  /**
+     * Sidebar toggle
+     */
+
+  if (select('.toggle-sidebar-btn')) {
+    on('click', '.toggle-sidebar-btn', function(e) {
+      select('body').classList.toggle('toggle-sidebar')
+    })
+  }
 
   /**
    * Scrool with ofset on links with a class name .scrollto

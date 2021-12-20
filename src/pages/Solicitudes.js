@@ -39,7 +39,7 @@ function Solicitudes() {
   };
 
   const registrarSolicitud = () => {
-    fetch(`http://localhost:8000/api/crear_solicitud`, {
+    fetch(`${process.env.REACT_APP_URL_BACKEND}/crear_solicitud`, {
       method: "POST",
       body: JSON.stringify(pago),
       headers: {

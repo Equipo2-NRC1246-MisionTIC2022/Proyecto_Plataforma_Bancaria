@@ -20,7 +20,7 @@ function RegistroUsuario() {
 
     //Conexion al backend a traves de la api
     const registrar = () => {
-      fetch(`http://localhost:8000/api/crear_usuario`, {
+      fetch(`${process.env.REACT_APP_URL_BACKEND}/crear_usuario`, {
         method: "POST",
         body: JSON.stringify(datos_registro),
         headers: {

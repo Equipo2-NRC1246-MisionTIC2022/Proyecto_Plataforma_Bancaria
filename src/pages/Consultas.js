@@ -48,7 +48,7 @@ function Consultas() {
   var h1=0
   const consultarSolicitud = () => {
     h1=document.getElementById("id_user").value
-    fetch(`http://localhost:8000/api/get_solicitud/${h1}`, {
+    fetch(`${process.env.REACT_APP_URL_BACKEND}/get_solicitud/${h1}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

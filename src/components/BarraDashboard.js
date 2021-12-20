@@ -32,6 +32,7 @@ function BarraDashboard() {
           <div className="logo">
             <Link to="/index"><img src="assets_general/img/citi.png" alt="" className="img-fluid"/></Link>
             <a style={{fontWeight: "bold", paddingLeft: "30px", paddingTop: "10px"}}>Bienvenido a su Dashboard</a>
+            <i class="bi bi-list toggle-sidebar-btn" style={{ position: "absolute", top:"25px", fontSize: "32px", paddingLeft: "10px", cursor: "pointer", color: "#012970"}}></i>
           </div>
 
         <nav className="header-nav ms-auto">

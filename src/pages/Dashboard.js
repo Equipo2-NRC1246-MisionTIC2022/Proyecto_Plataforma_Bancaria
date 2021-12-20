@@ -16,6 +16,7 @@ function Dashboard() {
     let [valuefechaNaci, setValuefechaNaci] = useState(usuario_storage.nacimiento);
     let [valueIngr, setValueIngr] = useState(usuario_storage.ingresos);
     let [valueEgr, setValueEgr] = useState(usuario_storage.egresos);
+    let [bimobile, setBimobile] = useState('');
     useEffect(() => {
       const usuario_storage = JSON.parse(window.localStorage.getItem("usuario"))
       const token_storage = window.localStorage.getItem("token-jwt");
@@ -34,6 +35,17 @@ function Dashboard() {
     window.localStorage.removeItem("token-jwt");
     window.localStorage.removeItem("usuario");
     window.location.href = '/'
+  };
+
+  var cont=0
+  const desplegarBarra= () => {
+    if (cont==0){
+      setBimobile("toggle-sidebar")
+      cont=1
+    } else if (cont==1){
+      setBimobile("")
+      cont=0
+    }
   };
 
   const cambiarValueNombre = () => {
@@ -66,7 +78,7 @@ function Dashboard() {
 
     //Conexion al backend a traves de la api
     const actualizar = () => {
-    fetch(`http://localhost:8000/api/actualizar_usuario/${usuario_storage.id}`, {
+    fetch(`${process.env.REACT_APP_URL_BACKEND}/actualizar_usuario/${usuario_storage.id}`, {
       method: "PUT",
       body: JSON.stringify(nuevos_datos),
       headers: {
@@ -137,7 +149,7 @@ const verificar_contraseña = (e) => {
   }
   
   const verificacion_actual = () => {
-    fetch(`http://localhost:8000/api/verificar`, {
+    fetch(`${process.env.REACT_APP_URL_BACKEND}/verificar`, {
       method: "POST",
       body: JSON.stringify(contraseña_actual),
       headers: {
@@ -149,13 +161,15 @@ const verificar_contraseña = (e) => {
       .then((response) => {
         if (response.mensaje==true) {
           actualizar_contraseña();
+        }else{
+          alert(response.mensaje);
         } 
       })
       .catch((error) => console.error("Error:", error));
   };
   
   const actualizar_contraseña = () => {
-    fetch(`http://localhost:8000/api/actualizar_contraseña/${id}`, {
+    fetch(`${process.env.REACT_APP_URL_BACKEND}/actualizar_contrasena/${usuario_storage.id}`, {
       method: "PUT",
       body: JSON.stringify(contraseña_nueva),
       headers: {
@@ -194,8 +208,69 @@ const verificar_contraseña = (e) => {
 };
 
   return (
-    <body>
-      <BarraDashboard/>
+    <body className={bimobile}>
+      {/*<!-- ======= Header ======= -->*/}
+      <header id="header" className="fixed-top d-flex align-items-center" style={{background: "#F0F8FF"}}>
+        <div className="container d-flex align-items-center justify-content-between">
+  
+          <div className="logo">
+            <Link to="/index"><img src="assets_general/img/citi.png" alt="" className="img-fluid"/></Link>
+            <a style={{fontWeight: "bold", paddingLeft: "30px", paddingTop: "10px"}}>Dashboard</a>
+            <i class="bi bi-list toggle-sidebar-btn" onClick={desplegarBarra} style={{top:"25px", fontSize: "32px", paddingLeft: "10px", cursor: "pointer", color: "#012970"}}></i>
+          </div>
+
+        <nav className="header-nav ms-auto">
+        <ul className="d-flex align-items-center">
+
+            <li className="nav-item dropdown pe-3" style={{listStyleType: "none"}}>
+
+            <a className="nav-link1 nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
+                <img src="assets_general/img/profile-img.png" alt="Profile" className="rounded-circle"/>
+                <span className="d-none d-md-block dropdown-toggle ps-2">{usuario}</span>
+            </a>
+            <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+                <li className="dropdown-header">
+                <h6>{usuario}</h6>
+                <span>ID.{id}</span>
+                </li>
+                <li>
+                <hr className="dropdown-divider"/>
+                </li>
+
+                <li>
+                <Link to="/dashboard" className="dropdown-item d-flex align-items-center">
+                    <i className="bi bi-person"></i>
+                    <span>Mi perfil</span>
+                </Link>
+                </li>
+                <li>
+                <hr className="dropdown-divider"/>
+                </li>
+
+                <li>
+                <Link to="/contactenos" className="dropdown-item d-flex align-items-center">
+                    <i className="bi bi-question-circle"></i>
+                    <span>¿Necesita ayuda?</span>
+                </Link>
+                </li>
+                <li>
+                <hr className="dropdown-divider"/>
+                </li>
+
+                <li>
+                <a className="dropdown-item d-flex align-items-center" onClick={cerrar_sesion}>
+                    <i className="bi bi-box-arrow-right"></i>
+                    <span>Cerrar Sesión</span>
+                </a>
+                </li>
+
+            </ul>
+            </li>
+
+        </ul>
+        </nav>
+        </div>
+        </header>
       {/* <!-- ======= Breadcrumbs Section ======= -->*/}
       <section className="breadcrumbs">
           <div className="container">
@@ -210,12 +285,13 @@ const verificar_contraseña = (e) => {
           </div>
         </section>{/*<!-- End Breadcrumbs Section -->*/}
       {/*<!-- ======= Sidebar ======= -->*/}
-      <aside id="sidebar" className="sidebar1" style={{top:"142px", position:"absolute", bottom:"-520px"}}>
+      <aside id="sidebar" className="sidebar1">
 
         <ul className="sidebar-nav1" id="sidebar-nav1">
 
           
-          <li className="nav-heading1">Pages</li>
+          <li className="nav-heading1"></li>
+          <br /><li className="nav-heading1">Pages</li><br />
 
           <li className="nav-item1">
             <Link to="/index" className="nav-link1 collapsed">
@@ -422,6 +498,8 @@ const verificar_contraseña = (e) => {
                           </div>
                         </div>
 
+                        <div style={{ fontSize: "small"}}><label>La contraseña puede contener letras (a-z) y números (0-9). Debe tener mínimo 8 caracteres, máximo 40. Mínimo debe contener un carácter en (1) mayúsculas y uno (1) en minúsculas. Mínimo debe contener un número del 0 al 9. La contraseña puede comenzar o contener un guion bajo (_) solamente. Ningún otro carácter está permitido.</label></div>
+                        <br></br>
                         <div className="text-center">
                           <button type="submit" className="btn btn-primary">Cambiar contraseña</button>
                         </div>
@@ -433,13 +511,21 @@ const verificar_contraseña = (e) => {
 
                 </div>
               </div>
+              <br /><br /><br /><br />
+
+              
 
             </div>
+            <br /><br /><br />
+            <div className="card">
+              </div>
+
+              <div class="card-body" style={{ width:"50px", backgroundImage: 'url("assets_general/img/Pensamos_en_ti.png")' }}>
+              <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+              </div>
           </div>
+          
         </section>
-        <div>
-          <img src="assets_general/img/Pensamos_en_ti.png"/>
-        </div>
       </main>{/*<!-- End #main -->*/}
       <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
     </body>

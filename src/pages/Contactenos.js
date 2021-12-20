@@ -30,7 +30,7 @@ function Contactenos() {
   
       //Conexion al backend a traves de la api
       const registrar = () => {
-        fetch(`http://localhost:8000/api/contacto_cliente`, {
+        fetch(`${process.env.REACT_APP_URL_BACKEND}/contacto_cliente`, {
           method: "POST",
           body: JSON.stringify(mensaje_cliente),
           headers: {
