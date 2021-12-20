@@ -5,12 +5,17 @@ import BarraSuperior from "../components/BarraSuperior";
 import BarraDashboard from "../components/BarraDashboard";
 
 function Dashboard() {
+  const usuario_storage = JSON.parse(window.localStorage.getItem("usuario"))
     let [token, setToken] = useState('');
     let [usuario, setUsuario] = useState('');
     let [id, setId] = useState('');
     let [fechaNaci, setFechaNaci] = useState('');
     let [ingresos, setIngresos] = useState('');
     let [egresos, setEgresos] = useState('');
+    let [valueNam, setValueNam] = useState(usuario_storage.nombre);
+    let [valuefechaNaci, setValuefechaNaci] = useState(usuario_storage.nacimiento);
+    let [valueIngr, setValueIngr] = useState(usuario_storage.ingresos);
+    let [valueEgr, setValueEgr] = useState(usuario_storage.egresos);
     useEffect(() => {
       const usuario_storage = JSON.parse(window.localStorage.getItem("usuario"))
       const token_storage = window.localStorage.getItem("token-jwt");
@@ -30,6 +35,164 @@ function Dashboard() {
     window.localStorage.removeItem("usuario");
     window.location.href = '/'
   };
+
+  const cambiarValueNombre = () => {
+    setValueNam(undefined)
+  };
+
+  const cambiarValueFecha = () => {
+    setValuefechaNaci(undefined)
+  };
+
+  const cambiarValueIng = () => {
+    setValueIngr(undefined)
+  };
+
+  const cambiarValueEgr = () => {
+    setValueEgr(undefined)
+  };
+
+  const actualizar_cliente = (e) => {
+    var h1="",h2="",h3="",h4="",h5="",h6=""
+    var Error=0
+    e.preventDefault();
+
+    const nuevos_datos = {
+      nombre: e.target.nombre.value,
+      nacimiento: e.target.fechaNaci.value,
+      ingresos: e.target.ingresos.value,
+      egresos: e.target.egresos.value
+    };
+
+    //Conexion al backend a traves de la api
+    const actualizar = () => {
+    fetch(`http://localhost:8000/api/actualizar_usuario/${usuario_storage.id}`, {
+      method: "PUT",
+      body: JSON.stringify(nuevos_datos),
+      headers: {
+        "Content-Type": "application/json",
+        "auth-token-jwt": token,
+      },
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        alert(response.mensaje);
+        alert("Para actualizar sus datos, se cerrará su sesión. Será redirigido al Login.");
+        cerrar_sesion();
+        window.location.href="/login"
+      })
+      .catch((error) => console.error("Error:", error));
+    };
+  const onlilet=/^[a-zA-Z ]*$/g.test(nuevos_datos.nombre);
+  if (!onlilet) {
+    Error=1
+    h1="Nombre completo: No se permiten números."
+  }
+  //validacion mayor de edad
+  if(nuevos_datos.nacimiento > "2003/12/10"){
+    Error=1
+    h2="Fecha de nacimiento: Solo mayores de edad."
+  }
+  const ing_num=/^[0-9\b]+$/g.test(nuevos_datos.ingresos);
+  const egr_num=/^[0-9\b]+$/g.test(nuevos_datos.egresos);
+  if(nuevos_datos.ingresos < 877803){
+    Error=1
+    h3="Valor de ingresos: Ingresos bajos."
+  }
+  if(!ing_num){
+    Error=1
+    h4="Valor de ingresos: No se permiten letras."
+  }
+  //validacion egresos
+  if(nuevos_datos.egresos < 50000){
+    Error=1
+    h5="Valor de egresos: Egresos bajos."   
+  }
+  if(!egr_num){
+    Error=1
+    h6="Valor de egresos: No se permiten letras."
+  }
+  
+  if(Error == 0){ 
+    actualizar();
+    
+  }else if (Error == 1){
+      alert(`Corrija los siguientes errores para poder actualizar su usuario de forma correcta:\n\n${h1}\n${h2}\n${h3}\n${h4}\n${h5}\n${h6}`);
+  }
+};
+
+const verificar_contraseña = (e) => {
+  var h1="",h2=""
+  var Error=0
+  e.preventDefault();
+
+  const contraseña_actual = {
+    id: usuario_storage.id,
+    pass: e.target.password.value
+  }
+
+  const contraseña_nueva = {
+    newpass: e.target.newpassword.value,
+    renewpass: e.target.renewpassword.value
+  }
+  
+  const verificacion_actual = () => {
+    fetch(`http://localhost:8000/api/verificar`, {
+      method: "POST",
+      body: JSON.stringify(contraseña_actual),
+      headers: {
+        "Content-Type": "application/json",
+        "auth-token-jwt": token
+      },
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        if (response.mensaje==true) {
+          actualizar_contraseña();
+        } 
+      })
+      .catch((error) => console.error("Error:", error));
+  };
+  
+  const actualizar_contraseña = () => {
+    fetch(`http://localhost:8000/api/actualizar_contraseña/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(contraseña_nueva),
+      headers: {
+        "Content-Type": "application/json",
+        "auth-token-jwt": token
+      },
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        alert(response.mensaje);
+        alert("Para actualizar su contraseña, se cerrará su sesión. Será redirigido al Login.");
+        cerrar_sesion();
+        window.location.href="/login"
+      })
+      .catch((error) => console.error("Error:", error));
+    };
+
+    //validacion contraseña
+    if(contraseña_nueva.newpass!=contraseña_nueva.renewpass){
+      Error=1
+      h1="Coincidencia nueva contraseña: La nueva contraseña no coincide con la escrita en el tercer campo."
+    }
+    const pass=/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[^\W]{8,40}/g.test(contraseña_nueva.newpass);
+    if(!pass){
+      Error=1
+      h2="Nueva contraseña: No es válida de acuerdo a los parametros establecidos."
+    }
+    
+    if(Error == 0){ 
+      verificacion_actual();
+      
+    }else if (Error == 1){
+        alert(`Corrija los siguientes errores para poder actualizar su contraseña de forma correcta:\n\n${h1}\n${h2}`);
+    } 
+
+};
+
   return (
     <body>
       <BarraDashboard/>
@@ -40,7 +203,7 @@ function Dashboard() {
             <div className="d-flex justify-content-between align-items-center">
               <h2></h2>
               <ol>
-                <li><a href="index.html">Home</a></li>
+                <li><Link to="/index">Home</Link></li>
                 <li>Dashboard</li>
               </ol>
             </div>
@@ -113,7 +276,7 @@ function Dashboard() {
           <h1>Dashboard</h1>
           <nav>
             <ol className="breadcrumb">
-              <li className="breadcrumb-item"><a href="index.html">Home</a></li>
+              <li className="breadcrumb-item"><Link to="/dashboard">Perfil</Link></li>
               <li className="breadcrumb-item active">Dashboard</li>
             </ol>
           </nav>
@@ -127,7 +290,7 @@ function Dashboard() {
                 <div className="card-body profile-card pt-4 d-flex flex-column align-items-center">
 
                   <img src="assets_general/img/profile-img.png" alt="Profile" className="rounded-circle"/>
-                  <h2>{usuario}</h2>
+                  <h2 style={{textAlign:"center"}}>{usuario}</h2>
                   <h3 style={{fontStyle: "italic"}}>Cliente Citybank</h3>
                   <h4>ID.{id}</h4>
                 </div>
@@ -146,11 +309,11 @@ function Dashboard() {
                     </li>
 
                     <li className="nav-item">
-                      <button className="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">Edit Profile</button>
+                      <button className="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">Editar perfil</button>
                     </li>
 
                     <li className="nav-item">
-                      <button className="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password">Change Password</button>
+                      <button className="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password">Cambiar contraseña</button>
                     </li>
 
                   </ul>
@@ -192,124 +355,75 @@ function Dashboard() {
 
                     <div className="tab-pane fade profile-edit pt-3" id="profile-edit">
 
-                      <form>
+                      <form onSubmit={actualizar_cliente}>
                         <div className="row mb-3">
-                          <label for="fullName" className="col-md-4 col-lg-3 col-form-label">Full Name</label>
+                          <label for="nombre" className="col-md-4 col-lg-3 col-form-label">Nombre</label>
                           <div className="col-md-8 col-lg-9">
-                            <input name="fullName" type="text" className="form-control" id="fullName" value="Kevin Anderson"/>
+                            <input name="nombre" type="text" className="form-control" id="nombre" value={valueNam} onClick={cambiarValueNombre} />
                           </div>
                         </div>
 
                         <div className="row mb-3">
-                          <label for="about" className="col-md-4 col-lg-3 col-form-label">About</label>
+                          <label for="id" className="col-md-4 col-lg-3 col-form-label">ID</label>
                           <div className="col-md-8 col-lg-9">
-                            <textarea name="about" className="form-control" id="about" style={{height: "100px"}}>Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem eveniet perspiciatis odit. Fuga sequi sed ea saepe at unde.</textarea>
+                            <input name="id" type="text" className="form-control" id="id" value={id} readOnly/>
                           </div>
                         </div>
 
                         <div className="row mb-3">
-                          <label for="company" className="col-md-4 col-lg-3 col-form-label">Company</label>
+                          <label for="fechaNacimiento" className="col-md-4 col-lg-3 col-form-label">Fecha de nacimiento</label>
                           <div className="col-md-8 col-lg-9">
-                            <input name="company" type="text" className="form-control" id="company" value="Lueilwitz, Wisoky and Leuschke"/>
+                            <input name="fechaNaci" type="date" className="form-control" id="fechaNaci" value={valuefechaNaci} onClick={cambiarValueFecha}/>
                           </div>
                         </div>
 
                         <div className="row mb-3">
-                          <label for="Job" className="col-md-4 col-lg-3 col-form-label">Job</label>
+                          <label for="ingresos" className="col-md-4 col-lg-3 col-form-label">Ingresos</label>
                           <div className="col-md-8 col-lg-9">
-                            <input name="job" type="text" className="form-control" id="Job" value="Web Designer"/>
+                            <input name="ingresos" type="text" className="form-control" id="ingresos" value={valueIngr} onClick={cambiarValueIng}/>
                           </div>
                         </div>
 
                         <div className="row mb-3">
-                          <label for="Country" className="col-md-4 col-lg-3 col-form-label">Country</label>
+                          <label for="egresos" className="col-md-4 col-lg-3 col-form-label">Egresos</label>
                           <div className="col-md-8 col-lg-9">
-                            <input name="country" type="text" className="form-control" id="Country" value="USA"/>
-                          </div>
-                        </div>
-
-                        <div className="row mb-3">
-                          <label for="Address" className="col-md-4 col-lg-3 col-form-label">Address</label>
-                          <div className="col-md-8 col-lg-9">
-                            <input name="address" type="text" className="form-control" id="Address" value="A108 Adam Street, New York, NY 535022"/>
-                          </div>
-                        </div>
-
-                        <div className="row mb-3">
-                          <label for="Phone" className="col-md-4 col-lg-3 col-form-label">Phone</label>
-                          <div className="col-md-8 col-lg-9">
-                            <input name="phone" type="text" className="form-control" id="Phone" value="(436) 486-3538 x29071"/>
-                          </div>
-                        </div>
-
-                        <div className="row mb-3">
-                          <label for="Email" className="col-md-4 col-lg-3 col-form-label">Email</label>
-                          <div className="col-md-8 col-lg-9">
-                            <input name="email" type="email" className="form-control" id="Email" value="k.anderson@example.com"/>
-                          </div>
-                        </div>
-
-                        <div className="row mb-3">
-                          <label for="Twitter" className="col-md-4 col-lg-3 col-form-label">Twitter Profile</label>
-                          <div className="col-md-8 col-lg-9">
-                            <input name="twitter" type="text" className="form-control" id="Twitter" value="https://twitter.com/#"/>
-                          </div>
-                        </div>
-
-                        <div className="row mb-3">
-                          <label for="Facebook" className="col-md-4 col-lg-3 col-form-label">Facebook Profile</label>
-                          <div className="col-md-8 col-lg-9">
-                            <input name="facebook" type="text" className="form-control" id="Facebook" value="https://facebook.com/#"/>
-                          </div>
-                        </div>
-
-                        <div className="row mb-3">
-                          <label for="Instagram" className="col-md-4 col-lg-3 col-form-label">Instagram Profile</label>
-                          <div className="col-md-8 col-lg-9">
-                            <input name="instagram" type="text" className="form-control" id="Instagram" value="https://instagram.com/#"/>
-                          </div>
-                        </div>
-
-                        <div className="row mb-3">
-                          <label for="Linkedin" className="col-md-4 col-lg-3 col-form-label">Linkedin Profile</label>
-                          <div className="col-md-8 col-lg-9">
-                            <input name="linkedin" type="text" className="form-control" id="Linkedin" value="https://linkedin.com/#"/>
+                            <input name="egresos" type="text" className="form-control" id="egresos" value={valueEgr} onClick={cambiarValueEgr}/>
                           </div>
                         </div>
 
                         <div className="text-center">
-                          <button type="submit" className="btn btn-primary">Save Changes</button>
+                          <button type="submit" className="btn btn-primary">Guardar cambios</button>
                         </div>
                       </form>
 
                     </div>
 
                     <div className="tab-pane fade pt-3" id="profile-change-password">
-                      <form>
+                      <form onSubmit={verificar_contraseña}>
 
                         <div className="row mb-3">
-                          <label for="currentPassword" className="col-md-4 col-lg-3 col-form-label">Current Password</label>
+                          <label for="currentPassword" className="col-md-4 col-lg-3 col-form-label">Contraseña actual</label>
                           <div className="col-md-8 col-lg-9">
-                            <input name="password" type="password" className="form-control" id="currentPassword"/>
+                            <input name="password" type="password" className="form-control" id="currentPassword" required/>
                           </div>
                         </div>
 
                         <div className="row mb-3">
-                          <label for="newPassword" className="col-md-4 col-lg-3 col-form-label">New Password</label>
+                          <label for="newPassword" className="col-md-4 col-lg-3 col-form-label">Nueva contraseña</label>
                           <div className="col-md-8 col-lg-9">
-                            <input name="newpassword" type="password" className="form-control" id="newPassword"/>
+                            <input name="newpassword" type="password" className="form-control" id="newPassword" required/>
                           </div>
                         </div>
 
                         <div className="row mb-3">
-                          <label for="renewPassword" className="col-md-4 col-lg-3 col-form-label">Re-enter New Password</label>
+                          <label for="renewPassword" className="col-md-4 col-lg-3 col-form-label">Ingrese otra vez la nueva contraseña</label>
                           <div className="col-md-8 col-lg-9">
-                            <input name="renewpassword" type="password" className="form-control" id="renewPassword"/>
+                            <input name="renewpassword" type="password" className="form-control" id="renewPassword" required/>
                           </div>
                         </div>
 
                         <div className="text-center">
-                          <button type="submit" className="btn btn-primary">Change Password</button>
+                          <button type="submit" className="btn btn-primary">Cambiar contraseña</button>
                         </div>
                       </form>
 
@@ -324,7 +438,7 @@ function Dashboard() {
           </div>
         </section>
         <div>
-          <img src="assets_general/img/container.png"/>
+          <img src="assets_general/img/Pensamos_en_ti.png"/>
         </div>
       </main>{/*<!-- End #main -->*/}
       <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>

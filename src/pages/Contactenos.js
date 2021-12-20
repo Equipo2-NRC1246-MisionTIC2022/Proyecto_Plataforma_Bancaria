@@ -79,7 +79,7 @@ function Contactenos() {
           <div className="d-flex justify-content-between align-items-center">
             <h2>Contactenos</h2>
             <ol>
-              <li><a href="index.html">Home</a></li>
+              <li><Link to="/index">Home</Link></li>
               <li>Contactenos</li>
             </ol>
           </div>
