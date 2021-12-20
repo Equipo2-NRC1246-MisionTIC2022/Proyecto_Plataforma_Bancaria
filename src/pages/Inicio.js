@@ -49,6 +49,7 @@ function Inicio() {
           </div>
         </div>
       </div>
+      
     </section>{/* <!-- End Hero --> */}
     <BarraInferior/> 
   </body>

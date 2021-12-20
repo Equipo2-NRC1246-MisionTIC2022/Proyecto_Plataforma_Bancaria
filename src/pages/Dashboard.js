@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import BarraInferior from "../components/BarraInferior";
-import BarraSuperior from "../components/BarraSuperior";
-import BarraDashboard from "../components/BarraDashboard";
 
 function Dashboard() {
-  const usuario_storage = JSON.parse(window.localStorage.getItem("usuario"))
+    if (JSON.parse(window.localStorage.getItem("usuario"))==null) {
+      window.location.href="/";
+      }
+    const usuario_storage = JSON.parse(window.localStorage.getItem("usuario"));
     let [token, setToken] = useState('');
     let [usuario, setUsuario] = useState('');
     let [id, setId] = useState('');
     let [fechaNaci, setFechaNaci] = useState('');
     let [ingresos, setIngresos] = useState('');
     let [egresos, setEgresos] = useState('');
+    let [bimobile, setBimobile] = useState('');
     let [valueNam, setValueNam] = useState(usuario_storage.nombre);
     let [valuefechaNaci, setValuefechaNaci] = useState(usuario_storage.nacimiento);
     let [valueIngr, setValueIngr] = useState(usuario_storage.ingresos);
     let [valueEgr, setValueEgr] = useState(usuario_storage.egresos);
-    let [bimobile, setBimobile] = useState('');
     useEffect(() => {
       const usuario_storage = JSON.parse(window.localStorage.getItem("usuario"))
       const token_storage = window.localStorage.getItem("token-jwt");
@@ -260,7 +260,7 @@ const verificar_contraseña = (e) => {
                 <li>
                 <a className="dropdown-item d-flex align-items-center" onClick={cerrar_sesion}>
                     <i className="bi bi-box-arrow-right"></i>
-                    <span>Cerrar Sesión</span>
+                    <span style={{cursor: "pointer"}}>Cerrar Sesión</span>
                 </a>
                 </li>
 
@@ -338,7 +338,7 @@ const verificar_contraseña = (e) => {
           <li className="nav-item1">
             <a className="nav-link1 collapsed" onClick={cerrar_sesion}>
               <i className="bi bi-box-arrow-left"></i>
-              <span>Cerrar sesión</span>
+              <span style={{cursor: "pointer"}}>Cerrar sesión</span>
             </a>
           </li>{/*<!-- End Blank Page Nav -->*/}
 
@@ -358,7 +358,7 @@ const verificar_contraseña = (e) => {
           </nav>
         </div>{/*<!-- End Page Title -->*/}
 
-        <section className="section profile">
+        <section className="section profile" data-aos="fade-up">
           <div className="row">
             <div className="col-xl-4">
 
