@@ -27,21 +27,33 @@ function Solicitudes() {
   }); 
   const Solicitud = (e) => {
     
-    var h1="",h2="",h3="",h4="",h5="",h6=""
+    var h1="",h2="",h3="",h5="",h6=""
     var Error=0
   e.preventDefault();
 
-  const pago = {
+  const solicitud = {
+    codigo: "CB"+Math.random(),
     id_user:e.target.id_user.value,
     valor: e.target.valor.value,
     cuotas: e.target.cuotas.value,
-    comentarios: e.target.message.value
+    comentarios: e.target.message.value,
+    prorroga: false,
+    razon_prorroga: "",
+    cuotas_prorroga: 0,
+    estado_prorroga: "",
+    cuotas_pagadas: 0,
+    cuotas_pendientes: 0,
+    cuota_capital: 0,
+    interes: 0,
+    estado_solicitud: "",
+
   };
+
 
   const registrarSolicitud = () => {
     fetch(`${process.env.REACT_APP_URL_BACKEND}/crear_solicitud`, {
       method: "POST",
-      body: JSON.stringify(pago),
+      body: JSON.stringify(solicitud),
       headers: {
         "Content-Type": "application/json",
         "auth-token-jwt": token
@@ -50,6 +62,7 @@ function Solicitudes() {
       .then((res) => res.json())
       .then((response) => {
         alert(response.mensaje);
+        alert(`Su solicitud esta siendo procesada con el código ${solicitud.codigo}. Por favor guarde este número para futuras consultas.`);
         window.location.href = "/solicitudes";
       })
       .catch((error) => console.error("Error:", error))
@@ -59,39 +72,32 @@ function Solicitudes() {
   //validacion solicitado completo
   //+
   //Solo letras
-  const id=/^[0-9\b]+$/g.test(pago.valor);
+  const id=/^[0-9\b]+$/g.test(solicitud.valor);
   if( !id){
     Error=1
     h1="Valor: Solo se permiten numeros"
     
   }
-  const id1=/^[0-9\b]+$/g.test(pago.cuotas);
+  const id1=/^[0-9\b]+$/g.test(solicitud.cuotas);
   if( !id1){
     Error=1
     h2="Cuotas: solo se permiten numeros"
     
   }
-  if(pago.valor < "100000"){
+  if(solicitud.valor < "100000"){
     Error=1
     h3="Valor: el valor debe ser minimo de cien mil pesos."
     
   }
   //validacion id
-  //solo numeros
-  if(pago.cuotas > 6){
-    Error=1
-    h4="Cuota: maximo 6 meses"
-    
-  }
-  //validacion id
     //solo numeros
-  const onlinum=/^[0-9\b]+$/g.test(pago.id_user);
+  const onlinum=/^[0-9\b]+$/g.test(solicitud.id_user);
   if(!onlinum){
     Error=1
     h5="Número de identificación: Solo se permiten números."
   }
   //max caracteres
-  const caracteres=pago.id_user.length
+  const caracteres=solicitud.id_user.length
   if(caracteres < 10 || caracteres>  10){
     Error=1
     h6="Número de identificación: Solo se permiten 10 caracteres."
@@ -101,7 +107,7 @@ function Solicitudes() {
     registrarSolicitud();
     
   }else if (Error == 1 ){
-      alert(`Corrija los siguientes errores para poder registrar su usuario de forma correcta:\n\n${h1}\n${h2}\n${h3}\n${h4}\n${h5}\n${h6}`);
+      alert(`Corrija los siguientes errores para poder registrar su solicitud correcta:\n\n${h1}\n${h2}\n${h3}\n${h5}\n${h6}`);
   }
 
   

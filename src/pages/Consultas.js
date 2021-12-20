@@ -29,11 +29,18 @@ function Consultas() {
   const [Fondo, setFondo] = useState("assets_general/img/container.png")
   const [Valor, setValor] = useState([])
   const [Tiempo, setTiempo] = useState([])
+  const [Cuotas_pen, setCuotas_pen] = useState()
   const [Codigo, setCodigo] = useState()
+  const [Estado_sol, setEstado_sol] = useState()
 
   const cambiarEstado = () => {
-    setEstado("visible")
-    setFondo(" ")
+    if(Codigo==undefined || Codigo==0){
+      alert("Debe buscar el credito sobre el que desea hacer la solicitud de Prorroga.")
+      ocultarFormulario();
+    }else{
+      setEstado("visible")
+      setFondo(" ")
+    }
   };
 
   const ocultarFormulario = () => {
@@ -42,12 +49,12 @@ function Consultas() {
   };
 
   const establecerCodigo= () => {
-    var codigo=document.getElementById("id_user").value
+    var codigo=document.getElementById("id_solicitud").value
     setCodigo(codigo)
   };
   var h1=0
   const consultarSolicitud = () => {
-    h1=document.getElementById("id_user").value
+    h1=document.getElementById("id_solicitud").value
     fetch(`${process.env.REACT_APP_URL_BACKEND}/get_solicitud/${h1}`, {
       method: "GET",
       headers: {
@@ -61,8 +68,11 @@ function Consultas() {
             establecerCodigo()
             setValor(response.valor);
             setTiempo(response.cuotas);
+            setCuotas_pen(response.cuotas_pendientes);
+            setEstado_sol(response.estado_solicitud);
           }else{
             alert(response.mensaje)
+            ocultarFormulario();
             setValor(" ");
             setTiempo(" ");
             setCodigo(" ")
@@ -71,6 +81,76 @@ function Consultas() {
         
       .catch((error) => console.error("Error:", error))
   };
+
+  const Prorroga = (e) => {
+    var h1="",h2="", h3="", h4="", h5=""
+    var Error=0
+  e.preventDefault();
+
+  const prorroga = {
+    prorroga: true,
+    razon_prorroga: document.getElementById("razon_prorroga").value,
+    cuotas_prorroga: document.getElementById("cuotas_prorroga").value
+  };
+
+
+  const registrarProrroga = () => {
+    fetch(`${process.env.REACT_APP_URL_BACKEND}/actualizar_solicitud/${Codigo}`, {
+      method: "PUT",
+      body: JSON.stringify(prorroga),
+      headers: {
+        "Content-Type": "application/json",
+        "auth-token-jwt": token,
+      },
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        alert(response.mensaje);
+        window.location.href="/consultas"
+      })
+      .catch((error) => console.error("Error:", error));
+  };
+
+  
+  //validacion solicitado completo
+  //+
+  //Solo letras
+  const valor=/^[a-zA-Z ]*$/g.test(prorroga.razon_prorroga);
+  if( !valor){
+    Error=1
+    h1="Razon: No se permiten solo numeros"
+    
+  }
+  const cuota=/^[0-9\b]+$/g.test(prorroga.cuotas_prorroga);
+  if(!cuota){
+    Error=1
+    h2="Cuotas: Se permiten solo numeros"
+    
+  }
+  if(Estado_sol==""||Estado_sol=="RECHAZADO"||Estado_sol=="rechazado"||Estado_sol=="Rechazado"||Estado_sol==undefined ){
+    Error=1
+    h3="Estado: El crédito aun no ha sido aprobado."
+    
+  }
+  var calculo=((25*Cuotas_pen)/100);
+  if(prorroga.cuotas_prorroga>calculo){
+    Error=1
+    h4="Cuotas: No cumplen los parametros establecidos. Ponganse en contacto con el banco."
+  }
+  if(prorroga.cuotas_prorroga>6){
+    Error=1
+    h5="Cuotas: Recuerde que el máximo de cuotas a aplazar son 6."
+    
+  }
+  
+  if(Error == 0){ 
+    registrarProrroga();
+    
+  }else if (Error == 1 ){
+      alert(`Corrija los siguientes errores para poder registrar su solicitud correcta:\n\n${h1}\n${h2}\n${h3}\n${h4}\n${h5}`);
+  }
+
+}
 
   return (
     <body>
@@ -102,7 +182,7 @@ function Consultas() {
                     <p>Codigo crédito</p>
                   </div>
                   <div className="col-sm-8">
-                    <input type="number" name="id_user" className="form-control" id="id_user" placeholder="Buscar codigo" required />
+                    <input type="text" name="id_solicitud" className="form-control" id="id_solicitud" placeholder="Buscar codigo" required />
                   </div>
                   <div className="col-sm-1" style={{ fontWeight: "bold", textAlign: "center" }}>
                     <h3><AiOutlineSearch onClick={consultarSolicitud}/></h3>
@@ -187,7 +267,7 @@ function Consultas() {
                     <p style={{ fontWeight: "bold" }}>Razón</p>
                   </div>
                   <div className="col-sm-7" style={{ textAlign: "left" }}>
-                    <input type="text" name="name" className="form-control" id="name" placeholder="Razon" value={Estado} readOnly />
+                    <input type="text" name="razon_prorroga" className="form-control" id="razon_prorroga" placeholder="Razon"/>
                     <br />
                   </div>
                 </div>
@@ -198,7 +278,7 @@ function Consultas() {
                     <p style={{ fontWeight: "bold" }}>Cantidad de cuotas</p>
                   </div>
                   <div className="col-sm-7" style={{ textAlign: "left" }}>
-                    <input type="text" name="name" className="form-control" id="name" placeholder="Razon" value={Estado} readOnly />
+                    <input type="name" name="cuotas_prorroga" className="form-control" id="cuotas_prorroga" placeholder="Razon"/>
                     <br />
                   </div>
                 </div>
@@ -214,7 +294,7 @@ function Consultas() {
                   <div className="col-lg-2">
                   </div>
                   <div className="col-lg-4">
-                    <div className="text-center" style={{ boxShadow: "0px 0 6px rgba(5, 1, 37, 0.8)" }}><Button variant="light" >Confirmar</Button></div>
+                    <div className="text-center" style={{ boxShadow: "0px 0 6px rgba(5, 1, 37, 0.8)" }}><Button variant="light" onClick={Prorroga} >Confirmar</Button></div>
                   </div>
                   <div className="col-lg-4">
                     <div className="text-center" style={{ boxShadow: "0px 0 6px rgba(5, 1, 37, 0.8)" }}><Button variant="light" onClick={ocultarFormulario}>Cancelar</Button></div>
