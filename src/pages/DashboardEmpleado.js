@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-function Dashboard() {
+function DashboardEmpleado() {
     if (JSON.parse(window.localStorage.getItem("usuario"))==null) {
       window.location.href="/";
       }
     const usuario_storage = JSON.parse(window.localStorage.getItem("usuario"));
-    if (usuario_storage.rol==2) {
-      window.location.href="/dashboardinterno";
-    }else if(usuario_storage.rol==1) {
-      window.location.href="/dashboardadmin";
-    }
     let [token, setToken] = useState('');
     let [usuario, setUsuario] = useState('');
     let [id, setId] = useState('');
@@ -25,14 +20,14 @@ function Dashboard() {
     useEffect(() => {
       const usuario_storage = JSON.parse(window.localStorage.getItem("usuario"))
       const token_storage = window.localStorage.getItem("token-jwt");
-      if (token_storage) {
-          token = token_storage;
-          usuario=setUsuario(usuario_storage.nombre);
-          id=setId(usuario_storage.id);
-          fechaNaci=setFechaNaci(usuario_storage.nacimiento);
-          ingresos=setIngresos(usuario_storage.ingresos);
-          egresos=setEgresos(usuario_storage.egresos);
-       } else {
+      if (token_storage && usuario_storage.rol==2) {
+        token = token_storage;
+        usuario=setUsuario(usuario_storage.nombre);
+        id=setId(usuario_storage.id);
+        fechaNaci=setFechaNaci(usuario_storage.nacimiento);
+        ingresos=setIngresos(usuario_storage.ingresos);
+        egresos=setEgresos(usuario_storage.egresos);
+      } else {
         window.location.href="/";
       }
     }); 
@@ -295,8 +290,24 @@ const verificar_contraseña = (e) => {
         <ul className="sidebar-nav1" id="sidebar-nav1">
 
           
+          <br /><li className="nav-heading1">Empleado</li><br />
+          <li className="nav-item1">
+            <Link to="/Prestamo" className="nav-link1 collapsed">
+              <i className="bi bi-chat-dots"></i>
+              <span>Solicitudes de credito</span>
+            </Link>
+          </li>{/*<!-- End Error 404 Page Nav -->*/}
+
+          
+          <li className="nav-item1">
+            <Link to="/Solicitudp" className="nav-link1 collapsed">
+              <i className="bi bi-chat-dots"></i>
+              <span>Solicitudes de prorroga</span>
+            </Link>
+          </li>{/*<!-- End Error 404 Page Nav -->*/}
+
           <li className="nav-heading1"></li>
-          <br /><li className="nav-heading1">Pages</li><br />
+          <br /><li className="nav-heading1">General</li><br />
 
           <li className="nav-item1">
             <Link to="/index" className="nav-link1 collapsed">
@@ -347,6 +358,7 @@ const verificar_contraseña = (e) => {
             </a>
           </li>{/*<!-- End Blank Page Nav -->*/}
 
+
         </ul>
 
       </aside>{/*<!-- End Sidebar-->*/}
@@ -357,7 +369,7 @@ const verificar_contraseña = (e) => {
           <h1>Dashboard</h1>
           <nav>
             <ol className="breadcrumb">
-              <li className="breadcrumb-item"><Link to="/dashboard">Perfil</Link></li>
+              <li className="breadcrumb-item"><Link to="/Dashboardint">Perfil</Link></li>
               <li className="breadcrumb-item active">Dashboard</li>
             </ol>
           </nav>
@@ -372,7 +384,7 @@ const verificar_contraseña = (e) => {
 
                   <img src="assets_general/img/profile-img.png" alt="Profile" className="rounded-circle"/>
                   <h2 style={{textAlign:"center"}}>{usuario}</h2>
-                  <h3 style={{fontStyle: "italic"}}>Cliente Citibank</h3>
+                  <h3 style={{fontStyle: "italic"}}>Empleado Citybank</h3>
                   <h4>ID.{id}</h4>
                 </div>
               </div>
@@ -419,18 +431,8 @@ const verificar_contraseña = (e) => {
                       </div>
 
                       <div className="row">
-                        <div className="col-lg-3 col-md-4 label" style={{fontWeight: "bold"}}>Ingresos</div>
-                        <div className="col-lg-9 col-md-8">{ingresos}</div>
-                      </div>
-
-                      <div className="row">
-                        <div className="col-lg-3 col-md-4 label" style={{fontWeight: "bold"}}>Egresos</div>
-                        <div className="col-lg-9 col-md-8">{egresos}</div>
-                      </div>
-
-                      <div className="row">
                         <div className="col-lg-3 col-md-4 label" style={{fontWeight: "bold"}}>Rol</div>
-                        <div className="col-lg-9 col-md-8">Cliente Citibank</div>
+                        <div className="col-lg-9 col-md-8">Empleado Citibank</div>
                       </div>
                     </div>
 
@@ -455,20 +457,6 @@ const verificar_contraseña = (e) => {
                           <label for="fechaNacimiento" className="col-md-4 col-lg-3 col-form-label">Fecha de nacimiento</label>
                           <div className="col-md-8 col-lg-9">
                             <input name="fechaNaci" type="date" className="form-control" id="fechaNaci" value={valuefechaNaci} onClick={cambiarValueFecha}/>
-                          </div>
-                        </div>
-
-                        <div className="row mb-3">
-                          <label for="ingresos" className="col-md-4 col-lg-3 col-form-label">Ingresos</label>
-                          <div className="col-md-8 col-lg-9">
-                            <input name="ingresos" type="text" className="form-control" id="ingresos" value={valueIngr} onClick={cambiarValueIng}/>
-                          </div>
-                        </div>
-
-                        <div className="row mb-3">
-                          <label for="egresos" className="col-md-4 col-lg-3 col-form-label">Egresos</label>
-                          <div className="col-md-8 col-lg-9">
-                            <input name="egresos" type="text" className="form-control" id="egresos" value={valueEgr} onClick={cambiarValueEgr}/>
                           </div>
                         </div>
 
@@ -537,4 +525,6 @@ const verificar_contraseña = (e) => {
   );
 }
 
-export default Dashboard;
+
+
+export default DashboardEmpleado;

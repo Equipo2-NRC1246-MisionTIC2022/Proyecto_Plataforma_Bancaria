@@ -12,9 +12,11 @@ import { BrowserRouter as Router, Route, Routes} from "react-router-dom";
 import Pagos from "./pages/Pagos";
 import Paginarender from "./pages/Paginarender";
 import DespliegueCertificado from "./pages/DespliegueCertificado";
-import Dashboardinterno from "./pages/Dashboardinterno";
 import Solicitudesprorroga from "./pages/Solictudesprorroga";
 import Prestamo from "./pages/Prestamo";
+import RegistroAdmin from "./pages/RegistroAdmin";
+import DashboardAdmin from "./pages/DashboardAdmin";
+import DashboardEmpleado from "./pages/DashboardEmpleado";
 
 const App = () => {
 
@@ -90,9 +92,11 @@ const App = () => {
             <Route path="/solicitudes" element={<Solicitudes/>} />
             <Route path="/dashboard" element={<Dashboard/>} />
             <Route path="/certificadocredito" element={<DespliegueCertificado/>} />
-            <Route path="/dashboardint" element={<Dashboardinterno/>} />
+            <Route path="/dashboardinterno" element={<DashboardEmpleado/>} />
             <Route path="/Solicitudp" element={<Solicitudesprorroga/>} />
             <Route path="/prestamo" element={<Prestamo />} />
+            <Route path="/registroadmin" element={<RegistroAdmin />} />
+            <Route path="/dashboardadmin" element={<DashboardAdmin />} />
         </Routes>
         </Router>
     </React.StrictMode>,

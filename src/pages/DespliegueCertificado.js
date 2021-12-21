@@ -17,7 +17,7 @@ function DespliegueCertificado() {
     const cod = window.localStorage.getItem("codigo");
     var d = new Date();
     const [Dia,setDia]= useState(d.getDate())
-    const [Mes,setMes]= useState(d.getMonth())
+    const [Mes,setMes]= useState(d.getMonth()+1)
     const [Año,setAño]= useState(d.getFullYear())
     const [Codigo, setCodigo] = useState(cod)
     const nombre =window.localStorage.getItem("nombre");

@@ -2,7 +2,20 @@ import { Link} from "react-router-dom";
 import React, {useState, useEffect} from "react";
 import {Dropdown, DropdownButton, Form, FormControl,InputGroup, Button} from "react-bootstrap";
 
-function RegistroUsuario() {
+function RegistroAdmin() {
+    if (JSON.parse(window.localStorage.getItem("usuario"))==null) {
+        window.location.href="/";
+        }
+    let [token, setToken] = useState('');
+    useEffect(() => {
+        const usuario_storage = JSON.parse(window.localStorage.getItem("usuario"))
+        const token_storage = window.localStorage.getItem("token-jwt");
+        if (token_storage && usuario_storage.rol==1) {
+            token = token_storage;
+        } else {
+            window.location.href="/";
+        }
+    }); 
   const Registrar_usuario = (e) => {
     var h1="",h2="",h3="",h4="",h5="",h6="",h7="", h8="", h9="", h10=""
     var Error=0
@@ -13,10 +26,10 @@ function RegistroUsuario() {
       id: e.target.username.value,
       nacimiento: e.target.dateborn.value,
       expedicion: e.target.dateExp.value,
-      ingresos: e.target.ingresos.value,
-      egresos: e.target.egresos.value,
+      ingresos: 0,
+      egresos: 0,
       pass: e.target.pass.value,
-      rol:3
+      rol:e.target.rol.value,
     };
 
     //Conexion al backend a traves de la api
@@ -67,28 +80,8 @@ function RegistroUsuario() {
       h5="Fecha de expedición:Fecha invalida."
     }
     
-    //validacion ingresos
-    const ing_num=/^[0-9\b]+$/g.test(datos_registro.ingresos);
-    const egr_num=/^[0-9\b]+$/g.test(datos_registro.egresos);
+    //validacion contraseña
     const pass=/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[^\W]{8,40}/g.test(datos_registro.pass);
-    if(datos_registro.ingresos < 877803){
-      Error=1
-      h6="Valor de ingresos: Ingresos bajos."
-    }
-    if(!ing_num){
-      Error=1
-      h7="Valor de ingresos: No se permiten letras."
-    }
-    //validacion egresos
-    if(datos_registro.egresos < 50000){
-      Error=1
-      h8="Valor de egresos: Egresos bajos."   
-    }
-    if(!egr_num){
-      Error=1
-      h9="Valor de egresos: No se permiten letras."
-    }
-//validacion contraseña
     if(!pass){
       Error=1
       h10="Contraseña: No es válida de acuerdo a los parametros establecidos."
@@ -115,7 +108,7 @@ function RegistroUsuario() {
 
               <div className="d-flex justify-content-center py-4">
                 <a href="index.html" className="logo d-flex align-items-center w-auto">
-                  <img src="assets_general/img/Citibank.png" alt="" style={{width:"100px"}}/>
+                  <img src="assets_general/img/Citibank_roladmin.png" alt="" style={{width:"100px"}}/>
                   
                 </a>
               </div>
@@ -126,7 +119,7 @@ function RegistroUsuario() {
 
                   <div className="pt-4 pb-2">
                     <h5 className="card-title text-center pb-0 fs-4">Crear una cuenta</h5>
-                    <p className="text-center small">Ingrese los siguientes datos para crear su cuenta</p>
+                    <p className="text-center small">Ingrese los siguientes datos para crear la cuenta del empleado o cliente si se requiere</p>
                   </div>
 
                   <form className="row g-3 needs-validation" novalidate onSubmit={Registrar_usuario}>
@@ -138,7 +131,7 @@ function RegistroUsuario() {
                     </div>
 
                     <div className="col-12 ">
-                    <label for="yourName" className="form-label">Tipo de documento</label>
+                    <label className="form-label">Tipo de documento</label>
                     <Form.Select aria-label="Default select example">
                       <option value="1">Cedula ciudadana</option>
                       <option value="2">Cedula extranjera</option>
@@ -167,28 +160,14 @@ function RegistroUsuario() {
                       <div className="invalid-feedback">Ingrese su fecha de expedicion del documento</div>
                     </div>
 
-
-                    <div className="col-12">
-                      <label for="yourValueIng" className="form-label">Valor de ingresos</label>
-                      <InputGroup className="mb-3" >
-                    <InputGroup.Text>$</InputGroup.Text>
-                    <InputGroup.Text>1.000.000</InputGroup.Text>
-                    <FormControl aria-label="Dollar amount (with dot and three decimal places)" name="ingresos" />
-                  </InputGroup>
-                  
-                      <div className="invalid-feedback">Ingrese el valor de sus ingresos</div>
+                    <div className="col-12 ">
+                    <label  id="rol" className="form-label">Rol</label>
+                    <Form.Select  id="rol" aria-label="Default select example">
+                      <option value="2">Empleado</option>
+                      <option value="3">Cliente Citibank</option>
+                    </Form.Select>
                     </div>
 
-                    <div className="col-12">
-                      <label for="yourValueEg" className="form-label">Valor de egresos</label>
-                      <InputGroup className="mb-3" >
-                    <InputGroup.Text >$</InputGroup.Text>
-                    <InputGroup.Text>0.000</InputGroup.Text>
-                    <FormControl aria-label="Dollar amount (with dot and three decimal places)" name="egresos" />
-                  </InputGroup>
-
-                      <div className="invalid-feedback">Ingrese el valor de sus egresos</div>
-                    </div>
 
                   <div className="col-12">
                     <label for="yourPass" className="form-label">Contraseña a asignar</label>
@@ -206,9 +185,6 @@ function RegistroUsuario() {
                     </div>
                     <div className="col-12">
                     <Button type="submit"  variant="primary">Crear cuenta</Button>{' '}
-                    </div>
-                    <div className="col-12">
-                      <Link to="/login" className="small mb-0">¿Ya tiene una cuenta? <a >Ingrese</a></Link>
                     </div>
                   </form>
 
@@ -232,4 +208,4 @@ function RegistroUsuario() {
   );
 }
 
-export default RegistroUsuario;
+export default RegistroAdmin;

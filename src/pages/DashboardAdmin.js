@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-function Dashboardinterno() {
+function DashboardAdmin() {
     if (JSON.parse(window.localStorage.getItem("usuario"))==null) {
       window.location.href="/";
       }
@@ -20,7 +20,7 @@ function Dashboardinterno() {
     useEffect(() => {
       const usuario_storage = JSON.parse(window.localStorage.getItem("usuario"))
       const token_storage = window.localStorage.getItem("token-jwt");
-      if (token_storage) {
+      if (token_storage && usuario_storage.rol==1) {
         token = token_storage;
         usuario=setUsuario(usuario_storage.nombre);
         id=setId(usuario_storage.id);
@@ -64,7 +64,7 @@ function Dashboardinterno() {
     setValueEgr(undefined)
   };
 
-  const actualizar_cliente = (e) => {
+  const actualizar_admin = (e) => {
     var h1="",h2="",h3="",h4="",h5="",h6=""
     var Error=0
     e.preventDefault();
@@ -288,12 +288,16 @@ const verificar_contraseña = (e) => {
       <aside id="sidebar" className="sidebar1">
 
         <ul className="sidebar-nav1" id="sidebar-nav1">
+        <br />
+        <li className="nav-heading1"></li>
+          <br /><li className="nav-heading1">Admin</li><br />
 
-          
-          <li className="nav-heading1"></li>
-          <br /><li className="nav-heading1">Pages</li><br />
-
-
+          <li className="nav-item1">
+            <Link to="/registroadmin" className="nav-link1 collapsed">
+              <i className="bi bi-house"></i>
+              <span>Registrar usuarios</span>
+            </Link>
+          </li>{/*<!-- End Profile Page Nav -->*/}
 
           <li className="nav-item1">
             <Link to="/Prestamo" className="nav-link1 collapsed">
@@ -302,11 +306,55 @@ const verificar_contraseña = (e) => {
             </Link>
           </li>{/*<!-- End Error 404 Page Nav -->*/}
 
-          
           <li className="nav-item1">
             <Link to="/Solicitudp" className="nav-link1 collapsed">
               <i className="bi bi-chat-dots"></i>
               <span>Solicitudes de prorroga</span>
+            </Link>
+          </li>{/*<!-- End Error 404 Page Nav -->*/}
+          
+          <li className="nav-heading1"></li>
+          <br /><li className="nav-heading1">General</li><br />
+
+          <li className="nav-item1">
+            <Link to="/index" className="nav-link1 collapsed">
+              <i className="bi bi-house"></i>
+              <span>Inicio</span>
+            </Link>
+          </li>{/*<!-- End Profile Page Nav -->*/}
+
+          <li className="nav-item1">
+            <Link to="/solicitudes" className="nav-link1 collapsed">
+              <i className="bi bi-cash-coin"></i>
+              <span>Solicitudes</span>
+            </Link>
+          </li>{/*<!-- End F.A.Q Page Nav -->*/}
+
+          <li className="nav-item1">
+            <Link to="/pagos" className="nav-link1 collapsed">
+              <i className="bi bi-currency-dollar"></i>
+              <span>Pagos</span>
+            </Link>
+          </li>{/*<!-- End Contact Page Nav -->*/}
+
+          <li className="nav-item1">
+            <Link to="/consultas" className="nav-link1 collapsed">
+              <i className="bi bi-search"></i>
+              <span>Consultas</span>
+            </Link>
+          </li>{/*<!-- End Register Page Nav -->*/}
+
+          <li className="nav-item1">
+            <Link to="/simulacionpago" className="nav-link1 collapsed">
+              <i className="bi bi-wallet2"></i>
+              <span>Simulacion de pago</span>
+            </Link>
+          </li>{/*<!-- End Login Page Nav -->*/}
+
+          <li className="nav-item1">
+            <Link to="/contactenos" className="nav-link1 collapsed">
+              <i className="bi bi-chat-dots"></i>
+              <span>Contactenos</span>
             </Link>
           </li>{/*<!-- End Error 404 Page Nav -->*/}
 
@@ -327,7 +375,7 @@ const verificar_contraseña = (e) => {
           <h1>Dashboard</h1>
           <nav>
             <ol className="breadcrumb">
-              <li className="breadcrumb-item"><Link to="/Dashboardint">Perfil</Link></li>
+              <li className="breadcrumb-item"><Link to="/dashboard">Perfil</Link></li>
               <li className="breadcrumb-item active">Dashboard</li>
             </ol>
           </nav>
@@ -342,7 +390,7 @@ const verificar_contraseña = (e) => {
 
                   <img src="assets_general/img/profile-img.png" alt="Profile" className="rounded-circle"/>
                   <h2 style={{textAlign:"center"}}>{usuario}</h2>
-                  <h3 style={{fontStyle: "italic"}}>Administrador Citybank</h3>
+                  <h3 style={{fontStyle: "italic"}}>Administrador</h3>
                   <h4>ID.{id}</h4>
                 </div>
               </div>
@@ -361,10 +409,6 @@ const verificar_contraseña = (e) => {
 
                     <li className="nav-item">
                       <button className="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">Editar perfil</button>
-                    </li>
-
-                    <li className="nav-item">
-                      <button className="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password">Cambiar contraseña</button>
                     </li>
 
                   </ul>
@@ -389,24 +433,14 @@ const verificar_contraseña = (e) => {
                       </div>
 
                       <div className="row">
-                        <div className="col-lg-3 col-md-4 label" style={{fontWeight: "bold"}}>Ingresos</div>
-                        <div className="col-lg-9 col-md-8">{ingresos}</div>
-                      </div>
-
-                      <div className="row">
-                        <div className="col-lg-3 col-md-4 label" style={{fontWeight: "bold"}}>Egresos</div>
-                        <div className="col-lg-9 col-md-8">{egresos}</div>
-                      </div>
-
-                      <div className="row">
                         <div className="col-lg-3 col-md-4 label" style={{fontWeight: "bold"}}>Rol</div>
-                        <div className="col-lg-9 col-md-8">Cliente Citybank</div>
+                        <div className="col-lg-9 col-md-8">Administrador</div>
                       </div>
                     </div>
 
                     <div className="tab-pane fade profile-edit pt-3" id="profile-edit">
 
-                      <form onSubmit={actualizar_cliente}>
+                      <form onSubmit={actualizar_admin}>
                         <div className="row mb-3">
                           <label for="nombre" className="col-md-4 col-lg-3 col-form-label">Nombre</label>
                           <div className="col-md-8 col-lg-9">
@@ -428,55 +462,8 @@ const verificar_contraseña = (e) => {
                           </div>
                         </div>
 
-                        <div className="row mb-3">
-                          <label for="ingresos" className="col-md-4 col-lg-3 col-form-label">Ingresos</label>
-                          <div className="col-md-8 col-lg-9">
-                            <input name="ingresos" type="text" className="form-control" id="ingresos" value={valueIngr} onClick={cambiarValueIng}/>
-                          </div>
-                        </div>
-
-                        <div className="row mb-3">
-                          <label for="egresos" className="col-md-4 col-lg-3 col-form-label">Egresos</label>
-                          <div className="col-md-8 col-lg-9">
-                            <input name="egresos" type="text" className="form-control" id="egresos" value={valueEgr} onClick={cambiarValueEgr}/>
-                          </div>
-                        </div>
-
                         <div className="text-center">
                           <button type="submit" className="btn btn-primary">Guardar cambios</button>
-                        </div>
-                      </form>
-
-                    </div>
-
-                    <div className="tab-pane fade pt-3" id="profile-change-password">
-                      <form onSubmit={verificar_contraseña}>
-
-                        <div className="row mb-3">
-                          <label for="currentPassword" className="col-md-4 col-lg-3 col-form-label">Contraseña actual</label>
-                          <div className="col-md-8 col-lg-9">
-                            <input name="password" type="password" className="form-control" id="currentPassword" required/>
-                          </div>
-                        </div>
-
-                        <div className="row mb-3">
-                          <label for="newPassword" className="col-md-4 col-lg-3 col-form-label">Nueva contraseña</label>
-                          <div className="col-md-8 col-lg-9">
-                            <input name="newpassword" type="password" className="form-control" id="newPassword" required/>
-                          </div>
-                        </div>
-
-                        <div className="row mb-3">
-                          <label for="renewPassword" className="col-md-4 col-lg-3 col-form-label">Ingrese otra vez la nueva contraseña</label>
-                          <div className="col-md-8 col-lg-9">
-                            <input name="renewpassword" type="password" className="form-control" id="renewPassword" required/>
-                          </div>
-                        </div>
-
-                        <div style={{ fontSize: "small"}}><label>La contraseña puede contener letras (a-z) y números (0-9). Debe tener mínimo 8 caracteres, máximo 40. Mínimo debe contener un carácter en (1) mayúsculas y uno (1) en minúsculas. Mínimo debe contener un número del 0 al 9. La contraseña puede comenzar o contener un guion bajo (_) solamente. Ningún otro carácter está permitido.</label></div>
-                        <br></br>
-                        <div className="text-center">
-                          <button type="submit" className="btn btn-primary">Cambiar contraseña</button>
                         </div>
                       </form>
 
@@ -507,6 +494,4 @@ const verificar_contraseña = (e) => {
   );
 }
 
-
-
-export default Dashboardinterno;
+export default DashboardAdmin;

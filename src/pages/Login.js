@@ -1,7 +1,14 @@
 import { Link} from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import {Dropdown, DropdownButton, Form, FormControl,InputGroup, Button} from "react-bootstrap";
 function Login({recibir}) {
 
+  useEffect(() => {
+    const usuario_storage = window.localStorage.getItem("usuario");
+    if (usuario_storage!=null) {
+      window.location.href="/index";
+      }
+  }); 
 
   const iniciar_sesion = (e) => {
     e.preventDefault();
