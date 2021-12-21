@@ -27,7 +27,7 @@ function Solicitudes() {
   }); 
   const Solicitud = (e) => {
     
-    var h1="",h2="",h3="",h5="",h6=""
+    var h1="",h2="",h3="",h5="",h6="",h7=""
     var Error=0
   e.preventDefault();
 
@@ -40,12 +40,12 @@ function Solicitudes() {
     prorroga: false,
     razon_prorroga: "",
     cuotas_prorroga: 0,
-    estado_prorroga: "",
+    estado_prorroga: 0,
     cuotas_pagadas: 0,
     cuotas_pendientes: 0,
     cuota_capital: 0,
     interes: 0,
-    estado_solicitud: "",
+    estado_solicitud: 0,
 
   };
 
@@ -102,12 +102,17 @@ function Solicitudes() {
     Error=1
     h6="Número de identificación: Solo se permiten 10 caracteres."
   }
+  const usuario_storage = JSON.parse(window.localStorage.getItem("usuario"))
+  if(usuario_storage.id!=solicitud.id_user){
+    Error=1
+    h7="Número de identificación: No coincide la identificación con el actual usuario del sistema."
+  }
 
   if(Error == 0){ 
     registrarSolicitud();
     
   }else if (Error == 1 ){
-      alert(`Corrija los siguientes errores para poder registrar su solicitud correcta:\n\n${h1}\n${h2}\n${h3}\n${h5}\n${h6}`);
+      alert(`Corrija los siguientes errores para poder registrar su solicitud correcta:\n\n${h1}\n${h2}\n${h3}\n${h5}\n${h6}\n${h7}`);
   }
 
   

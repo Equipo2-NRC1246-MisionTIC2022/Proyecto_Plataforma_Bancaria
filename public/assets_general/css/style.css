@@ -850,6 +850,7 @@ h1, h2, h3, h4, h5, h6 {
   #hero1 .container, #hero .container-fluid {
     padding-top: 68px;
   }
+  
   #hero1 .animated {
     -webkit-animation: none;
     animation: none;
@@ -884,6 +885,11 @@ h1, h2, h3, h4, h5, h6 {
 @media (max-width: 575px), (max-height: 600px) {
   #hero1 {
     height: auto;
+  }
+
+  #hero1 .container, #hero .container-fluid {
+    padding-bottom: 150px;
+    padding-top: -150px;
   }
 }
 

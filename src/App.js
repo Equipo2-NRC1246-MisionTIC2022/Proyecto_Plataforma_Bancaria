@@ -9,6 +9,7 @@ import Contactenos from './pages/Contactenos';
 import Solicitudes from './pages/Solicitudes';
 import Dashboard from './pages/Dashboard';
 import { BrowserRouter as Router, Route, Routes} from "react-router-dom";
+import Pagos from "./pages/Pagos";
 
 const App = () => {
 
@@ -78,6 +79,7 @@ const App = () => {
             <Route path="/login" element={<Login recibir={datos_inicio_sesion} />} />
             <Route path="/index" element={<Principal/>} />
             <Route path="/consultas" element={<Consultas/>} />
+            <Route path="/pagos" element={<Pagos/>} />
             <Route path="/simulacionpago" element={<SimulacionPago/>} />
             <Route path="/contactenos" element={<Contactenos/>} />
             <Route path="/solicitudes" element={<Solicitudes/>} />
