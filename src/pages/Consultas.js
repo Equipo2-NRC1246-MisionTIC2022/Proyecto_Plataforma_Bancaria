@@ -53,9 +53,16 @@ function Consultas() {
       setFondo(" ")
     }
   };
+  var aprob_cert=0
   const certificar = (e) => {
     e.preventDefault();
-    window.location.href="/certificadocredito"
+    if(Codigo==undefined || Codigo==0){
+      alert("Debe buscar el credito sobre el que desea hacer el certificado.");
+      window.location.href="/consultas";
+    }else if (aprob_cert=1){
+      window.localStorage.setItem("codigo", Codigo);
+      window.location.href="/certificadocredito";
+    }
   };
 
   const ocultarFormulario = () => {
@@ -80,6 +87,7 @@ function Consultas() {
       .then((res) => res.json())
       .then((response) => {
           if(response.mensaje==undefined){
+            aprob_cert=1
             establecerCodigo()
             setValor(response.valor);
             setTiempo(response.cuotas);

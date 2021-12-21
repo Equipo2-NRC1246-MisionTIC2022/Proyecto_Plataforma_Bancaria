@@ -3,7 +3,58 @@ import React, { useState, useEffect } from "react";
 import { PDFViewer } from '@react-pdf/renderer';
 
 function Certificado() {
-    const [Estado_prorr, setEstado_prorr] = useState("PRUEBA")
+    const [Cuotas_pen, setCuotas_pen] = useState()
+    const [Codigo, setCodigo] = useState()
+    const [Cuotas_pagadas, setCuotas_pagadas] = useState()
+    const [Cuota_capital, setCuota_capital] = useState()
+    const [Cuota_total, setCuota_total] = useState()
+    const [Interes, setInteres] = useState()
+
+    var d = new Date();
+    const [Dia,setDia]= useState(d.getDate())
+    const [Mes,setMes]= useState(d.getMonth()+1)
+    const [Año,setAño]= useState(d.getFullYear())
+
+    useEffect(() => {
+
+      const token_storage = window.localStorage.getItem("token-jwt");
+      const usuario_storage = JSON.parse(window.localStorage.getItem("usuario"))
+      const codigo_consulta = JSON.parse(window.localStorage.getItem("codigo"))
+      if (token_storage) {
+        token = token_storage;
+        usuario=usuario_storage;
+        setCodigo(codigo_consulta)
+        consultarSolicitud(); 
+        
+      } else {
+        window.location.href="/";
+      }
+    });
+    const [Id_user, setId_user] = useState(usuario.id)
+    const [Nombre, setNombre] = useState(usuario.nombre)
+
+    var h1=0
+    const consultarSolicitud = () => {
+      h1=Codigo
+      fetch(`${process.env.REACT_APP_URL_BACKEND}/get_solicitud/${h1}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token-jwt": token
+        },
+      })
+        .then((res) => res.json())
+        .then((response) => {
+          setValor(response.valor);
+          setTiempo(response.cuotas);
+          setCuotas_pen(response.cuotas_pendientes);
+          setCuotas_pagadas(response.cuotas_pagadas);
+          setCuota_capital(response.cuota_capital);
+          setInteres(response.interes);
+          setCuota_total(response.cuota_capital+response.interes);
+        })
+        .catch((error) => console.error("Error:", error))
+    };
         
     const styles = StyleSheet.create({
         body: {
@@ -68,29 +119,15 @@ return (
         />
       </View>
       <View>
-        <Text style={styles.text}>La División Nacional Sucursal Caribe de Citigroup Inc certifica que....
-        EJEMPLO:En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha
-        mucho tiempo que vivía un hidalgo de los de lanza en astillero, adarga
-        antigua, rocín flaco y galgo corredor. Una olla de algo más vaca que
-        carnero, salpicón las más noches, duelos -- {Estado_prorr} --y quebrantos los sábados,
-        lentejas los viernes, algún palomino de añadidura los domingos,
-        consumían las tres partes de su hacienda. El resto della concluían sayo
-        de velarte, calzas de velludo para las fiestas con sus pantuflos de lo
-        mismo, los días de entre semana se honraba con su vellori de lo más
-        fino. Tenía en su casa una ama que pasaba de los cuarenta, y una sobrina
-        que no llegaba a los veinte, y un mozo de campo y plaza, que así
-        ensillaba el rocín como tomaba la podadera. Frisaba la edad de nuestro
-        hidalgo con los cincuenta años, era de complexión recia, seco de carnes,
-        enjuto de rostro; gran madrugador y amigo de la caza. Quieren decir que
-        tenía el sobrenombre de Quijada o Quesada (que en esto hay alguna
-        diferencia en los autores que deste caso escriben), aunque por
-        conjeturas verosímiles se deja entender que se llama Quijana; pero esto
-        importa poco a nuestro cuento; basta que en la narración dél no se salga
-        un punto de la verdad</Text>
+        <Text style={styles.text}>La División Nacional Sucursal Caribe de Citigroup Inc certifica que {Nombre} identificado
+        con número de identificación {Id_user} tiene en este banco registrado el crédito con código {Codigo} del cual
+        tiene {Cuotas_pagadas} cuota(s) pagada(s) y {Cuotas_pen} cuota(s) pendiente(s) por pagar,
+        teniendo en cuenta una valor de cuota de {Cuota_total}, lo cual contempla un valor de capital de ${Cuota_capital} pesos y un valor
+        de intereses de ${Interes} pesos.</Text>
         <Text style={styles.author}></Text>
         <Text style={styles.author}></Text>
         <Text style={styles.author}></Text>
-        <Text style={styles.author}></Text>
+        <Text style={styles.author}>Dado en Barranquilla a los {Dia} dias del mes de {Mes} del año {Año}. </Text>
         <Text style={styles.author}></Text>
         <Text style={styles.author}></Text>
         <Text style={styles.author}></Text>
