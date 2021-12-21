@@ -10,6 +10,7 @@ import Solicitudes from './pages/Solicitudes';
 import Dashboard from './pages/Dashboard';
 import { BrowserRouter as Router, Route, Routes} from "react-router-dom";
 import Pagos from "./pages/Pagos";
+import Paginarender from "./pages/Paginarender";
 
 const App = () => {
 
@@ -84,6 +85,7 @@ const App = () => {
             <Route path="/contactenos" element={<Contactenos/>} />
             <Route path="/solicitudes" element={<Solicitudes/>} />
             <Route path="/dashboard" element={<Dashboard/>} />
+            <Route path="/certificadocredito" element={<Paginarender/>} />
         </Routes>
         </Router>
     </React.StrictMode>,

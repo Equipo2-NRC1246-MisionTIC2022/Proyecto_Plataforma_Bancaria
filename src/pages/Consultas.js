@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import { Dropdown, DropdownButton, Form, FormControl, InputGroup, Table, textarea, Button } from "react-bootstrap";
+import { PDFViewer } from '@react-pdf/renderer';
+import Certificado from "./Certificado";
 import {
   AiFillDollarCircle,
   AiFillEuroCircle,
@@ -50,6 +52,10 @@ function Consultas() {
       setEstado("visible")
       setFondo(" ")
     }
+  };
+  const certificar = (e) => {
+    e.preventDefault();
+    window.location.href="/certificadocredito"
   };
 
   const ocultarFormulario = () => {
@@ -354,7 +360,7 @@ function Consultas() {
                 </div>
 
                 <div className="col-lg-3">
-                  <div className="text-center" style={{ boxShadow: "0px 0 6px rgba(5, 1, 37, 0.8)" }}><Button variant="light">Generar historial de pago</Button></div>
+                  <div className="text-center" style={{ boxShadow: "0px 0 6px rgba(5, 1, 37, 0.8)" }}><Button variant="light" onClick={certificar}>Generar historial de pago</Button></div>
                 </div>
                 <div className="col-lg-3">
                   <div className="text-center" style={{ boxShadow: "0px 0 6px rgba(5, 1, 37, 0.8)" }}><Button variant="light" >Generar certificados de pago</Button></div>
