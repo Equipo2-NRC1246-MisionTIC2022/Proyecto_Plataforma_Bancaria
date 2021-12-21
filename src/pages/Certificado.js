@@ -103,7 +103,7 @@ return (
         <Text style={styles.text}>{Nombre} identificado
         con número de identificación {Id_user} tiene en este banco registrado el crédito con código {Codigo} del cual
         tiene {Cuotas_pagadas} cuota(s) pagada(s) y {Cuotas_pen} cuota(s) pendiente(s) por pagar,
-        teniendo en cuenta una valor de cuota de {Cuota_total}, lo cual contempla un valor de capital de $ {Cuota_capital} pesos y un valor
+        teniendo en cuenta una valor de cuota de $ {Cuota_total} pesos, lo cual contempla un valor de capital de $ {Cuota_capital} pesos y un valor
         de intereses de $ {Interes} pesos.</Text>
         <Text style={styles.author}></Text>
         <Text style={styles.author}></Text>

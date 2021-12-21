@@ -1,17 +1,32 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import BarraInferior from "../components/BarraInferior";
-import BarraSuperior from "../components/BarraSuperior";
 
 function Dashboardinterno() {
+    if (JSON.parse(window.localStorage.getItem("usuario"))==null) {
+      window.location.href="/";
+      }
+    const usuario_storage = JSON.parse(window.localStorage.getItem("usuario"));
     let [token, setToken] = useState('');
     let [usuario, setUsuario] = useState('');
+    let [id, setId] = useState('');
+    let [fechaNaci, setFechaNaci] = useState('');
+    let [ingresos, setIngresos] = useState('');
+    let [egresos, setEgresos] = useState('');
+    let [bimobile, setBimobile] = useState('');
+    let [valueNam, setValueNam] = useState(usuario_storage.nombre);
+    let [valuefechaNaci, setValuefechaNaci] = useState(usuario_storage.nacimiento);
+    let [valueIngr, setValueIngr] = useState(usuario_storage.ingresos);
+    let [valueEgr, setValueEgr] = useState(usuario_storage.egresos);
     useEffect(() => {
       const usuario_storage = JSON.parse(window.localStorage.getItem("usuario"))
       const token_storage = window.localStorage.getItem("token-jwt");
       if (token_storage) {
         token = token_storage;
         usuario=setUsuario(usuario_storage.nombre);
+        id=setId(usuario_storage.id);
+        fechaNaci=setFechaNaci(usuario_storage.nacimiento);
+        ingresos=setIngresos(usuario_storage.ingresos);
+        egresos=setEgresos(usuario_storage.egresos);
       } else {
         window.location.href="/";
       }
@@ -21,15 +36,247 @@ function Dashboardinterno() {
     window.localStorage.removeItem("usuario");
     window.location.href = '/'
   };
+
+  var cont=0
+  const desplegarBarra= () => {
+    if (cont==0){
+      setBimobile("toggle-sidebar")
+      cont=1
+    } else if (cont==1){
+      setBimobile("")
+      cont=0
+    }
+  };
+
+  const cambiarValueNombre = () => {
+    setValueNam(undefined)
+  };
+
+  const cambiarValueFecha = () => {
+    setValuefechaNaci(undefined)
+  };
+
+  const cambiarValueIng = () => {
+    setValueIngr(undefined)
+  };
+
+  const cambiarValueEgr = () => {
+    setValueEgr(undefined)
+  };
+
+  const actualizar_cliente = (e) => {
+    var h1="",h2="",h3="",h4="",h5="",h6=""
+    var Error=0
+    e.preventDefault();
+
+    const nuevos_datos = {
+      nombre: e.target.nombre.value,
+      nacimiento: e.target.fechaNaci.value,
+      ingresos: e.target.ingresos.value,
+      egresos: e.target.egresos.value
+    };
+
+    //Conexion al backend a traves de la api
+    const actualizar = () => {
+    fetch(`${process.env.REACT_APP_URL_BACKEND}/actualizar_usuario/${usuario_storage.id}`, {
+      method: "PUT",
+      body: JSON.stringify(nuevos_datos),
+      headers: {
+        "Content-Type": "application/json",
+        "auth-token-jwt": token,
+      },
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        alert(response.mensaje);
+        alert("Para actualizar sus datos, se cerrará su sesión. Será redirigido al Login.");
+        cerrar_sesion();
+        window.location.href="/login"
+      })
+      .catch((error) => console.error("Error:", error));
+    };
+  const onlilet=/^[a-zA-Z ]*$/g.test(nuevos_datos.nombre);
+  if (!onlilet) {
+    Error=1
+    h1="Nombre completo: No se permiten números."
+  }
+  //validacion mayor de edad
+  if(nuevos_datos.nacimiento > "2003/12/10"){
+    Error=1
+    h2="Fecha de nacimiento: Solo mayores de edad."
+  }
+  const ing_num=/^[0-9\b]+$/g.test(nuevos_datos.ingresos);
+  const egr_num=/^[0-9\b]+$/g.test(nuevos_datos.egresos);
+  if(nuevos_datos.ingresos < 877803){
+    Error=1
+    h3="Valor de ingresos: Ingresos bajos."
+  }
+  if(!ing_num){
+    Error=1
+    h4="Valor de ingresos: No se permiten letras."
+  }
+  //validacion egresos
+  if(nuevos_datos.egresos < 50000){
+    Error=1
+    h5="Valor de egresos: Egresos bajos."   
+  }
+  if(!egr_num){
+    Error=1
+    h6="Valor de egresos: No se permiten letras."
+  }
+  
+  if(Error == 0){ 
+    actualizar();
+    
+  }else if (Error == 1){
+      alert(`Corrija los siguientes errores para poder actualizar su usuario de forma correcta:\n\n${h1}\n${h2}\n${h3}\n${h4}\n${h5}\n${h6}`);
+  }
+};
+
+const verificar_contraseña = (e) => {
+  var h1="",h2=""
+  var Error=0
+  e.preventDefault();
+
+  const contraseña_actual = {
+    id: usuario_storage.id,
+    pass: e.target.password.value
+  }
+
+  const contraseña_nueva = {
+    newpass: e.target.newpassword.value,
+    renewpass: e.target.renewpassword.value
+  }
+  
+  const verificacion_actual = () => {
+    fetch(`${process.env.REACT_APP_URL_BACKEND}/verificar`, {
+      method: "POST",
+      body: JSON.stringify(contraseña_actual),
+      headers: {
+        "Content-Type": "application/json",
+        "auth-token-jwt": token
+      },
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        if (response.mensaje==true) {
+          actualizar_contraseña();
+        }else{
+          alert(response.mensaje);
+        } 
+      })
+      .catch((error) => console.error("Error:", error));
+  };
+  
+  const actualizar_contraseña = () => {
+    fetch(`${process.env.REACT_APP_URL_BACKEND}/actualizar_contrasena/${usuario_storage.id}`, {
+      method: "PUT",
+      body: JSON.stringify(contraseña_nueva),
+      headers: {
+        "Content-Type": "application/json",
+        "auth-token-jwt": token
+      },
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        alert(response.mensaje);
+        alert("Para actualizar su contraseña, se cerrará su sesión. Será redirigido al Login.");
+        cerrar_sesion();
+        window.location.href="/login"
+      })
+      .catch((error) => console.error("Error:", error));
+    };
+
+    //validacion contraseña
+    if(contraseña_nueva.newpass!=contraseña_nueva.renewpass){
+      Error=1
+      h1="Coincidencia nueva contraseña: La nueva contraseña no coincide con la escrita en el tercer campo."
+    }
+    const pass=/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[^\W]{8,40}/g.test(contraseña_nueva.newpass);
+    if(!pass){
+      Error=1
+      h2="Nueva contraseña: No es válida de acuerdo a los parametros establecidos."
+    }
+    
+    if(Error == 0){ 
+      verificacion_actual();
+      
+    }else if (Error == 1){
+        alert(`Corrija los siguientes errores para poder actualizar su contraseña de forma correcta:\n\n${h1}\n${h2}`);
+    } 
+
+};
+
   return (
-    <body>
-      <BarraSuperior />
+    <body className={bimobile}>
+      {/*<!-- ======= Header ======= -->*/}
+      <header id="header" className="fixed-top d-flex align-items-center" style={{background: "#F0F8FF"}}>
+        <div className="container d-flex align-items-center justify-content-between">
+  
+          <div className="logo">
+            <Link to="/index"><img src="assets_general/img/citi.png" alt="" className="img-fluid"/></Link>
+            <a style={{fontWeight: "bold", paddingLeft: "30px", paddingTop: "10px"}}>Dashboard</a>
+            <i class="bi bi-list toggle-sidebar-btn" onClick={desplegarBarra} style={{top:"25px", fontSize: "32px", paddingLeft: "10px", cursor: "pointer", color: "#012970"}}></i>
+          </div>
+
+        <nav className="header-nav ms-auto">
+        <ul className="d-flex align-items-center">
+
+            <li className="nav-item dropdown pe-3" style={{listStyleType: "none"}}>
+
+            <a className="nav-link1 nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
+                <img src="assets_general/img/profile-img.png" alt="Profile" className="rounded-circle"/>
+                <span className="d-none d-md-block dropdown-toggle ps-2">{usuario}</span>
+            </a>
+            <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+                <li className="dropdown-header">
+                <h6>{usuario}</h6>
+                <span>ID.{id}</span>
+                </li>
+                <li>
+                <hr className="dropdown-divider"/>
+                </li>
+
+                <li>
+                <Link to="/dashboard" className="dropdown-item d-flex align-items-center">
+                    <i className="bi bi-person"></i>
+                    <span>Mi perfil</span>
+                </Link>
+                </li>
+                <li>
+                <hr className="dropdown-divider"/>
+                </li>
+
+                <li>
+                <Link to="/contactenos" className="dropdown-item d-flex align-items-center">
+                    <i className="bi bi-question-circle"></i>
+                    <span>¿Necesita ayuda?</span>
+                </Link>
+                </li>
+                <li>
+                <hr className="dropdown-divider"/>
+                </li>
+
+                <li>
+                <a className="dropdown-item d-flex align-items-center" onClick={cerrar_sesion}>
+                    <i className="bi bi-box-arrow-right"></i>
+                    <span style={{cursor: "pointer"}}>Cerrar Sesión</span>
+                </a>
+                </li>
+
+            </ul>
+            </li>
+
+        </ul>
+        </nav>
+        </div>
+        </header>
       {/* <!-- ======= Breadcrumbs Section ======= -->*/}
       <section className="breadcrumbs">
           <div className="container">
 
             <div className="d-flex justify-content-between align-items-center">
-              <h2>Dashboard</h2>
+              <h2></h2>
               <ol>
                 <li><Link to="/index">Home</Link></li>
                 <li>Dashboard</li>
@@ -42,231 +289,31 @@ function Dashboardinterno() {
 
         <ul className="sidebar-nav1" id="sidebar-nav1">
 
-          <li className="nav-item1">
-            <a className="nav-link1 " href="index.html">
-              <i className="bi bi-grid"></i>
-              <span>Dashboard</span>
-            </a>
-          </li>{/*<!-- End Dashboard Nav -->*/}
+          
+          <li className="nav-heading1"></li>
+          <br /><li className="nav-heading1">Pages</li><br />
+
+
 
           <li className="nav-item1">
-            <a className="nav-link1 collapsed" data-bs-target="#components-nav" data-bs-toggle="collapse" href="#">
-              <i className="bi bi-menu-button-wide"></i><span>Opcion</span><i className="bi bi-chevron-down ms-auto"></i>
-            </a>
-            <ul id="components-nav1" className="nav-content1 collapse " data-bs-parent="#sidebar-nav1">
-              <li>
-                <a href="components-alerts.html">
-                  <i className="bi bi-circle"></i><span>Alerts</span>
-                </a>
-              </li>
-              <li>
-                <a href="components-accordion.html">
-                  <i className="bi bi-circle"></i><span>Accordion</span>
-                </a>
-              </li>
-              <li>
-                <a href="components-badges.html">
-                  <i className="bi bi-circle"></i><span>Badges</span>
-                </a>
-              </li>
-              <li>
-                <a href="components-breadcrumbs.html">
-                  <i className="bi bi-circle"></i><span>Breadcrumbs</span>
-                </a>
-              </li>
-              <li>
-                <a href="components-buttons.html">
-                  <i className="bi bi-circle"></i><span>Buttons</span>
-                </a>
-              </li>
-              <li>
-                <a href="components-cards.html">
-                  <i className="bi bi-circle"></i><span>Cards</span>
-                </a>
-              </li>
-              <li>
-                <a href="components-carousel.html">
-                  <i className="bi bi-circle"></i><span>Carousel</span>
-                </a>
-              </li>
-              <li>
-                <a href="components-list-group.html">
-                  <i className="bi bi-circle"></i><span>List group</span>
-                </a>
-              </li>
-              <li>
-                <a href="components-modal.html">
-                  <i className="bi bi-circle"></i><span>Modal</span>
-                </a>
-              </li>
-              <li>
-                <a href="components-tabs.html">
-                  <i className="bi bi-circle"></i><span>Tabs</span>
-                </a>
-              </li>
-              <li>
-                <a href="components-pagination.html">
-                  <i className="bi bi-circle"></i><span>Pagination</span>
-                </a>
-              </li>
-              <li>
-                <a href="components-progress.html">
-                  <i className="bi bi-circle"></i><span>Progress</span>
-                </a>
-              </li>
-              <li>
-                <a href="components-spinners.html">
-                  <i className="bi bi-circle"></i><span>Spinners</span>
-                </a>
-              </li>
-              <li>
-                <a href="components-tooltips.html">
-                  <i className="bi bi-circle"></i><span>Tooltips</span>
-                </a>
-              </li>
-            </ul>
-          </li>{/*<!-- End Components Nav -->*/}
+            <Link to="/Prestamo" className="nav-link1 collapsed">
+              <i className="bi bi-chat-dots"></i>
+              <span>Solicitudes de credito</span>
+            </Link>
+          </li>{/*<!-- End Error 404 Page Nav -->*/}
 
+          
           <li className="nav-item1">
-            <a className="nav-link1 collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
-              <i className="bi bi-journal-text"></i><span>Forms</span><i className="bi bi-chevron-down ms-auto"></i>
-            </a>
-            <ul id="forms-nav" className="nav-content1 collapse " data-bs-parent="#sidebar-nav1">
-              <li>
-                <a href="forms-elements.html">
-                  <i className="bi bi-circle"></i><span>Form Elements</span>
-                </a>
-              </li>
-              <li>
-                <a href="forms-layouts.html">
-                  <i className="bi bi-circle"></i><span>Form Layouts</span>
-                </a>
-              </li>
-              <li>
-                <a href="forms-editors.html">
-                  <i className="bi bi-circle"></i><span>Form Editors</span>
-                </a>
-              </li>
-              <li>
-                <a href="forms-validation.html">
-                  <i className="bi bi-circle"></i><span>Form Validation</span>
-                </a>
-              </li>
-            </ul>
-          </li>{/*<!-- End Forms Nav -->*/}
-
-          <li className="nav-item1">
-            <a className="nav-link1 collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
-              <i className="bi bi-layout-text-window-reverse"></i><span>Tables</span><i className="bi bi-chevron-down ms-auto"></i>
-            </a>
-            <ul id="tables-nav" className="nav-content1 collapse " data-bs-parent="#sidebar-nav">
-              <li>
-                <a href="tables-general.html">
-                  <i className="bi bi-circle"></i><span>General Tables</span>
-                </a>
-              </li>
-              <li>
-                <a href="tables-data.html">
-                  <i className="bi bi-circle"></i><span>Data Tables</span>
-                </a>
-              </li>
-            </ul>
-          </li>{/*<!-- End Tables Nav -->*/}
-
-          <li className="nav-item1">
-            <a className="nav-link1 collapsed" data-bs-target="#charts-nav" data-bs-toggle="collapse" href="#">
-              <i className="bi bi-bar-chart"></i><span>Charts</span><i className="bi bi-chevron-down ms-auto"></i>
-            </a>
-            <ul id="charts-nav" className="nav-content1 collapse " data-bs-parent="#sidebar-nav">
-              <li>
-                <a href="charts-chartjs.html">
-                  <i className="bi bi-circle"></i><span>Chart.js</span>
-                </a>
-              </li>
-              <li>
-                <a href="charts-apexcharts.html">
-                  <i className="bi bi-circle"></i><span>ApexCharts</span>
-                </a>
-              </li>
-              <li>
-                <a href="charts-echarts.html">
-                  <i className="bi bi-circle"></i><span>ECharts</span>
-                </a>
-              </li>
-            </ul>
-          </li>{/*<!-- End Charts Nav -->*/}
-
-          <li className="nav-item1">
-            <a className="nav-link1 collapsed" data-bs-target="#icons-nav" data-bs-toggle="collapse" href="#">
-              <i className="bi bi-gem"></i><span>Icons</span><i className="bi bi-chevron-down ms-auto"></i>
-            </a>
-            <ul id="icons-nav" className="nav-content1 collapse " data-bs-parent="#sidebar-nav">
-              <li>
-                <a href="icons-bootstrap.html">
-                  <i className="bi bi-circle"></i><span>Bootstrap Icons</span>
-                </a>
-              </li>
-              <li>
-                <a href="icons-remix.html">
-                  <i className="bi bi-circle"></i><span>Remix Icons</span>
-                </a>
-              </li>
-              <li>
-                <a href="icons-boxicons.html">
-                  <i className="bi bi-circle"></i><span>Boxicons</span>
-                </a>
-              </li>
-            </ul>
-          </li>{/*<!-- End Icons Nav -->*/}
-
-          <li className="nav-heading1">Pages</li>
-
-          <li className="nav-item1">
-            <a className="nav-link1 collapsed" href="users-profile.html">
-              <i className="bi bi-person"></i>
-              <span>Profile</span>
-            </a>
-          </li>{/*<!-- End Profile Page Nav -->*/}
-
-          <li className="nav-item1">
-            <a className="nav-link1 collapsed" href="pages-faq.html">
-              <i className="bi bi-question-circle"></i>
-              <span>F.A.Q</span>
-            </a>
-          </li>{/*<!-- End F.A.Q Page Nav -->*/}
-
-          <li className="nav-item1">
-            <a className="nav-link1 collapsed" href="pages-contact.html">
-              <i className="bi bi-envelope"></i>
-              <span>Contact</span>
-            </a>
-          </li>{/*<!-- End Contact Page Nav -->*/}
-
-          <li className="nav-item1">
-            <a className="nav-link1 collapsed" href="pages-register.html">
-              <i className="bi bi-card-list"></i>
-              <span>Register</span>
-            </a>
-          </li>{/*<!-- End Register Page Nav -->*/}
-
-          <li className="nav-item1">
-            <a className="nav-link1 collapsed" href="pages-login.html">
-              <i className="bi bi-box-arrow-in-right"></i>
-              <span>Login</span>
-            </a>
-          </li>{/*<!-- End Login Page Nav -->*/}
-
-          <li className="nav-item1">
-            <a className="nav-link1 collapsed" href="pages-error-404.html">
-              <i className="bi bi-dash-circle"></i>
-              <span>Error 404</span>
-            </a>
+            <Link to="/Solicitudp" className="nav-link1 collapsed">
+              <i className="bi bi-chat-dots"></i>
+              <span>Solicitudes de prorroga</span>
+            </Link>
           </li>{/*<!-- End Error 404 Page Nav -->*/}
 
           <li className="nav-item1">
-            <a className="nav-link1 collapsed" href="pages-blank.html">
-              <i className="bi bi-file-earmark"></i>
-              <span>Blank</span>
+            <a className="nav-link1 collapsed" onClick={cerrar_sesion}>
+              <i className="bi bi-box-arrow-left"></i>
+              <span style={{cursor: "pointer"}}>Cerrar sesión</span>
             </a>
           </li>{/*<!-- End Blank Page Nav -->*/}
 
@@ -280,503 +327,186 @@ function Dashboardinterno() {
           <h1>Dashboard</h1>
           <nav>
             <ol className="breadcrumb">
-              <li className="breadcrumb-item"><a href="index.html">Home</a></li>
+              <li className="breadcrumb-item"><Link to="/Dashboardint">Perfil</Link></li>
               <li className="breadcrumb-item active">Dashboard</li>
             </ol>
           </nav>
         </div>{/*<!-- End Page Title -->*/}
 
-        <section className="section dashboard" data-aos="fade-up">
+        <section className="section profile" data-aos="fade-up">
           <div className="row">
+            <div className="col-xl-4">
 
-            {/*<!-- Left side columns -->*/}
-            <div className="col-lg-8">
-              <div className="row">
+              <div className="card">
+                <div className="card-body profile-card pt-4 d-flex flex-column align-items-center">
 
-                {/*<!-- Sales Card -->*/}
-                <div className="col-xxl-4 col-md-6">
-                  <div className="card info-card sales-card">
-
-                    <div className="filter">
-                      <a className="icon" href="#" data-bs-toggle="dropdown"><i className="bi bi-three-dots"></i></a>
-                      <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        <li className="dropdown-header text-start">
-                          <h6>Filter</h6>
-                        </li>
-
-                        <li><a className="dropdown-item" href="#">Today</a></li>
-                        <li><a className="dropdown-item" href="#">This Month</a></li>
-                        <li><a className="dropdown-item" href="#">This Year</a></li>
-                      </ul>
-                    </div>
-
-                    <div className="card-body1">
-                      <h5 className="card-title1">Sales <span>| Today</span></h5>
-
-                      <div className="d-flex align-items-center">
-                        <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                          <i className="bi bi-cart"></i>
-                        </div>
-                        <div className="ps-3">
-                          <h6>145</h6>
-                          <span className="text-success small pt-1 fw-bold">12%</span> <span className="text-muted small pt-2 ps-1">increase</span>
-
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>{/*<!-- End Sales Card -->*/}
-
-                {/*<!-- Revenue Card -->*/}
-                <div className="col-xxl-4 col-md-6">
-                  <div className="card info-card revenue-card">
-
-                    <div className="filter">
-                      <a className="icon" href="#" data-bs-toggle="dropdown"><i className="bi bi-three-dots"></i></a>
-                      <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        <li className="dropdown-header text-start">
-                          <h6>Filter</h6>
-                        </li>
-
-                        <li><a className="dropdown-item" href="#">Today</a></li>
-                        <li><a className="dropdown-item" href="#">This Month</a></li>
-                        <li><a className="dropdown-item" href="#">This Year</a></li>
-                      </ul>
-                    </div>
-
-                    <div className="card-body1">
-                      <h5 className="card-title1">Revenue <span>| This Month</span></h5>
-
-                      <div className="d-flex align-items-center">
-                        <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                          <i className="bi bi-currency-dollar"></i>
-                        </div>
-                        <div className="ps-3">
-                          <h6>$3,264</h6>
-                          <span className="text-success small pt-1 fw-bold">8%</span> <span className="text-muted small pt-2 ps-1">increase</span>
-
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>{/*<!-- End Revenue Card -->*/}
-
-                {/*<!-- Customers Card -->*/}
-                <div className="col-xxl-4 col-xl-12">
-
-                  <div className="card info-card customers-card">
-
-                    <div className="filter">
-                      <a className="icon" href="#" data-bs-toggle="dropdown"><i className="bi bi-three-dots"></i></a>
-                      <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        <li className="dropdown-header text-start">
-                          <h6>Filter</h6>
-                        </li>
-
-                        <li><a className="dropdown-item" href="#">Today</a></li>
-                        <li><a className="dropdown-item" href="#">This Month</a></li>
-                        <li><a className="dropdown-item" href="#">This Year</a></li>
-                      </ul>
-                    </div>
-
-                    <div className="card-body1">
-                      <h5 className="card-title1">Customers <span>| This Year</span></h5>
-
-                      <div className="d-flex align-items-center">
-                        <div className="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                          <i className="bi bi-people"></i>
-                        </div>
-                        <div className="ps-3">
-                          <h6>1244</h6>
-                          <span className="text-danger small pt-1 fw-bold">12%</span> <span className="text-muted small pt-2 ps-1">decrease</span>
-
-                        </div>
-                      </div>
-
-                    </div>
-                  </div>
-
-                </div>{/*<!-- End Customers Card -->*/}
-
-                {/*<!-- Reports -->*/}
-                <div className="col-12">
-                  <div className="card">
-
-                    <div className="filter">
-                      <a className="icon" href="#" data-bs-toggle="dropdown"><i className="bi bi-three-dots"></i></a>
-                      <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        <li className="dropdown-header text-start">
-                          <h6>Filter</h6>
-                        </li>
-
-                        <li><a className="dropdown-item" href="#">Today</a></li>
-                        <li><a className="dropdown-item" href="#">This Month</a></li>
-                        <li><a className="dropdown-item" href="#">This Year</a></li>
-                      </ul>
-                    </div>
-
-                    <div className="card-body1">
-                      <h5 className="card-title1">Reports <span>/Today</span></h5>
-
-                      {/*<!-- Line Chart -->*/}
-                      <div id="reportsChart"></div>
-
-                      <script>
-
-                      </script>
-                      {/*<!-- End Line Chart -->*/}
-
-                    </div>
-
-                  </div>
-                </div>{/*<!-- End Reports -->*/}
-
-                {/*<!-- Recent Sales -->*/}
-                <div className="col-12">
-                  <div className="card recent-sales">
-
-                    <div className="filter">
-                      <a className="icon" href="#" data-bs-toggle="dropdown"><i className="bi bi-three-dots"></i></a>
-                      <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        <li className="dropdown-header text-start">
-                          <h6>Filter</h6>
-                        </li>
-
-                        <li><a className="dropdown-item" href="#">Today</a></li>
-                        <li><a className="dropdown-item" href="#">This Month</a></li>
-                        <li><a className="dropdown-item" href="#">This Year</a></li>
-                      </ul>
-                    </div>
-
-                    <div className="card-body1">
-                      <h5 className="card-title1">Recent Sales <span>| Today</span></h5>
-
-                      <table className="table table-borderless datatable">
-                        <thead>
-                          <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Customer</th>
-                            <th scope="col">Product</th>
-                            <th scope="col">Price</th>
-                            <th scope="col">Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <th scope="row"><a href="#">#2457</a></th>
-                            <td>Brandon Jacob</td>
-                            <td><a href="#" className="text-primary">At praesentium minu</a></td>
-                            <td>$64</td>
-                            <td><span className="badge bg-success">Approved</span></td>
-                          </tr>
-                          <tr>
-                            <th scope="row"><a href="#">#2147</a></th>
-                            <td>Bridie Kessler</td>
-                            <td><a href="#" className="text-primary">Blanditiis dolor omnis similique</a></td>
-                            <td>$47</td>
-                            <td><span className="badge bg-warning">Pending</span></td>
-                          </tr>
-                          <tr>
-                            <th scope="row"><a href="#">#2049</a></th>
-                            <td>Ashleigh Langosh</td>
-                            <td><a href="#" className="text-primary">At recusandae consectetur</a></td>
-                            <td>$147</td>
-                            <td><span className="badge bg-success">Approved</span></td>
-                          </tr>
-                          <tr>
-                            <th scope="row"><a href="#">#2644</a></th>
-                            <td>Angus Grady</td>
-                            <td><a href="#" className="text-primar">Ut voluptatem id earum et</a></td>
-                            <td>$67</td>
-                            <td><span className="badge bg-danger">Rejected</span></td>
-                          </tr>
-                          <tr>
-                            <th scope="row"><a href="#">#2644</a></th>
-                            <td>Raheem Lehner</td>
-                            <td><a href="#" className="text-primary">Sunt similique distinctio</a></td>
-                            <td>$165</td>
-                            <td><span className="badge bg-success">Approved</span></td>
-                          </tr>
-                        </tbody>
-                      </table>
-
-                    </div>
-
-                  </div>
-                </div>{/*<!-- End Recent Sales -->*/}
-
-                {/*<!-- Top Selling -->*/}
-                <div className="col-12">
-                  <div className="card top-selling">
-
-                    <div className="filter">
-                      <a className="icon" href="#" data-bs-toggle="dropdown"><i className="bi bi-three-dots"></i></a>
-                      <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        <li className="dropdown-header text-start">
-                          <h6>Filter</h6>
-                        </li>
-
-                        <li><a className="dropdown-item" href="#">Today</a></li>
-                        <li><a className="dropdown-item" href="#">This Month</a></li>
-                        <li><a className="dropdown-item" href="#">This Year</a></li>
-                      </ul>
-                    </div>
-
-                    <div className="card-body1 pb-0">
-                      <h5 className="card-title1">Top Selling <span>| Today</span></h5>
-
-                      <table className="table table-borderless">
-                        <thead>
-                          <tr>
-                            <th scope="col">Preview</th>
-                            <th scope="col">Product</th>
-                            <th scope="col">Price</th>
-                            <th scope="col">Sold</th>
-                            <th scope="col">Revenue</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <th scope="row"><a href="#"><img src="assets/img/product-1.jpg" alt="" /></a></th>
-                            <td><a href="#" className="text-primary fw-bold">Ut inventore ipsa voluptas nulla</a></td>
-                            <td>$64</td>
-                            <td className="fw-bold">124</td>
-                            <td>$5,828</td>
-                          </tr>
-                          <tr>
-                            <th scope="row"><a href="#"><img src="assets/img/product-2.jpg" alt="" /></a></th>
-                            <td><a href="#" className="text-primary fw-bold">Exercitationem similique doloremque</a></td>
-                            <td>$46</td>
-                            <td className="fw-bold">98</td>
-                            <td>$4,508</td>
-                          </tr>
-                          <tr>
-                            <th scope="row"><a href="#"><img src="assets/img/product-3.jpg" alt="" /></a></th>
-                            <td><a href="#" className="text-primary fw-bold">Doloribus nisi exercitationem</a></td>
-                            <td>$59</td>
-                            <td className="fw-bold">74</td>
-                            <td>$4,366</td>
-                          </tr>
-                          <tr>
-                            <th scope="row"><a href="#"><img src="assets/img/product-4.jpg" alt="" /></a></th>
-                            <td><a href="#" className="text-primary fw-bold">Officiis quaerat sint rerum error</a></td>
-                            <td>$32</td>
-                            <td className="fw-bold">63</td>
-                            <td>$2,016</td>
-                          </tr>
-                          <tr>
-                            <th scope="row"><a href="#"><img src="assets/img/product-5.jpg" alt="" /></a></th>
-                            <td><a href="#" className="text-primary fw-bold">Sit unde debitis delectus repellendus</a></td>
-                            <td>$79</td>
-                            <td className="fw-bold">41</td>
-                            <td>$3,239</td>
-                          </tr>
-                        </tbody>
-                      </table>
-
-                    </div>
-
-                  </div>
-                </div>{/*<!-- End Top Selling -->*/}
-
+                  <img src="assets_general/img/profile-img.png" alt="Profile" className="rounded-circle"/>
+                  <h2 style={{textAlign:"center"}}>{usuario}</h2>
+                  <h3 style={{fontStyle: "italic"}}>Administrador Citybank</h3>
+                  <h4>ID.{id}</h4>
+                </div>
               </div>
-            </div>{/*<!-- End Left side columns -->*/}
 
-            {/*<!-- Right side columns -->*/}
-            <div className="col-lg-4">
+            </div>
 
-              {/*<!-- Recent Activity -->*/}
-              <div className="card1">
-                <div className="filter">
-                  <a className="icon" href="#" data-bs-toggle="dropdown"><i className="bi bi-three-dots"></i></a>
-                  <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li className="dropdown-header text-start">
-                      <h6>Filter</h6>
+            <div className="col-xl-8">
+
+              <div className="card">
+                <div className="card-body pt-3">
+                  <ul className="nav nav-tabs nav-tabs-bordered">
+
+                    <li className="nav-item">
+                      <button className="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview">General</button>
                     </li>
 
-                    <li><a className="dropdown-item" href="#">Today</a></li>
-                    <li><a className="dropdown-item" href="#">This Month</a></li>
-                    <li><a className="dropdown-item" href="#">This Year</a></li>
+                    <li className="nav-item">
+                      <button className="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">Editar perfil</button>
+                    </li>
+
+                    <li className="nav-item">
+                      <button className="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password">Cambiar contraseña</button>
+                    </li>
+
                   </ul>
-                </div>
+                  <div className="tab-content pt-2">
 
-                <div className="card-body1">
-                  <h5 className="card-title1">Recent Activity <span>| Today</span></h5>
+                    <div className="tab-pane fade show active profile-overview" id="profile-overview">
+                      <h5 className="card-title" style={{fontStyle: "italic"}}>Detalles de perfil</h5>
 
-                  <div className="activity">
-
-                    <div className="activity-item d-flex">
-                      <div className="activite-label">32 min</div>
-                      <i className='bi bi-circle-fill activity-badge text-success align-self-start'></i>
-                      <div className="activity-content">
-                        Quia quae rerum <a href="#" className="fw-bold text-dark">explicabo officiis</a> beatae
+                      <div className="row">
+                        <div className="col-lg-3 col-md-4 label " style={{fontWeight: "bold"}}>Nombre</div>
+                        <div className="col-lg-9 col-md-8">{usuario}</div>
                       </div>
-                    </div>{/*<!-- End activity item-->*/}
 
-                    <div className="activity-item d-flex">
-                      <div className="activite-label">56 min</div>
-                      <i className='bi bi-circle-fill activity-badge text-danger align-self-start'></i>
-                      <div className="activity-content">
-                        Voluptatem blanditiis blanditiis eveniet
+                      <div className="row">
+                        <div className="col-lg-3 col-md-4 label" style={{fontWeight: "bold"}}>ID</div>
+                        <div className="col-lg-9 col-md-8">{id}</div>
                       </div>
-                    </div>{/*<!-- End activity item-->*/}
 
-                    <div className="activity-item d-flex">
-                      <div className="activite-label">2 hrs</div>
-                      <i className='bi bi-circle-fill activity-badge text-primary align-self-start'></i>
-                      <div className="activity-content">
-                        Voluptates corrupti molestias voluptatem
+                      <div className="row">
+                        <div className="col-lg-3 col-md-4 label" style={{fontWeight: "bold"}}>Fecha de nacimiento</div>
+                        <div className="col-lg-9 col-md-8">{fechaNaci}</div>
                       </div>
-                    </div>{/*<!-- End activity item-->*/}
 
-                    <div className="activity-item d-flex">
-                      <div className="activite-label">1 day</div>
-                      <i className='bi bi-circle-fill activity-badge text-info align-self-start'></i>
-                      <div className="activity-content">
-                        Tempore autem saepe <a href="#" className="fw-bold text-dark">occaecati voluptatem</a> tempore
+                      <div className="row">
+                        <div className="col-lg-3 col-md-4 label" style={{fontWeight: "bold"}}>Ingresos</div>
+                        <div className="col-lg-9 col-md-8">{ingresos}</div>
                       </div>
-                    </div>{/*<!-- End activity item-->*/}
 
-                    <div className="activity-item d-flex">
-                      <div className="activite-label">2 days</div>
-                      <i className='bi bi-circle-fill activity-badge text-warning align-self-start'></i>
-                      <div className="activity-content">
-                        Est sit eum reiciendis exercitationem
+                      <div className="row">
+                        <div className="col-lg-3 col-md-4 label" style={{fontWeight: "bold"}}>Egresos</div>
+                        <div className="col-lg-9 col-md-8">{egresos}</div>
                       </div>
-                    </div>{/*<!-- End activity item-->*/}
 
-                    <div className="activity-item d-flex">
-                      <div className="activite-label">4 weeks</div>
-                      <i className='bi bi-circle-fill activity-badge text-muted align-self-start'></i>
-                      <div className="activity-content">
-                        Dicta dolorem harum nulla eius. Ut quidem quidem sit quas
+                      <div className="row">
+                        <div className="col-lg-3 col-md-4 label" style={{fontWeight: "bold"}}>Rol</div>
+                        <div className="col-lg-9 col-md-8">Cliente Citybank</div>
                       </div>
-                    </div>{/*<!-- End activity item-->*/}
+                    </div>
+
+                    <div className="tab-pane fade profile-edit pt-3" id="profile-edit">
+
+                      <form onSubmit={actualizar_cliente}>
+                        <div className="row mb-3">
+                          <label for="nombre" className="col-md-4 col-lg-3 col-form-label">Nombre</label>
+                          <div className="col-md-8 col-lg-9">
+                            <input name="nombre" type="text" className="form-control" id="nombre" value={valueNam} onClick={cambiarValueNombre} />
+                          </div>
+                        </div>
+
+                        <div className="row mb-3">
+                          <label for="id" className="col-md-4 col-lg-3 col-form-label">ID</label>
+                          <div className="col-md-8 col-lg-9">
+                            <input name="id" type="text" className="form-control" id="id" value={id} readOnly/>
+                          </div>
+                        </div>
+
+                        <div className="row mb-3">
+                          <label for="fechaNacimiento" className="col-md-4 col-lg-3 col-form-label">Fecha de nacimiento</label>
+                          <div className="col-md-8 col-lg-9">
+                            <input name="fechaNaci" type="date" className="form-control" id="fechaNaci" value={valuefechaNaci} onClick={cambiarValueFecha}/>
+                          </div>
+                        </div>
+
+                        <div className="row mb-3">
+                          <label for="ingresos" className="col-md-4 col-lg-3 col-form-label">Ingresos</label>
+                          <div className="col-md-8 col-lg-9">
+                            <input name="ingresos" type="text" className="form-control" id="ingresos" value={valueIngr} onClick={cambiarValueIng}/>
+                          </div>
+                        </div>
+
+                        <div className="row mb-3">
+                          <label for="egresos" className="col-md-4 col-lg-3 col-form-label">Egresos</label>
+                          <div className="col-md-8 col-lg-9">
+                            <input name="egresos" type="text" className="form-control" id="egresos" value={valueEgr} onClick={cambiarValueEgr}/>
+                          </div>
+                        </div>
+
+                        <div className="text-center">
+                          <button type="submit" className="btn btn-primary">Guardar cambios</button>
+                        </div>
+                      </form>
+
+                    </div>
+
+                    <div className="tab-pane fade pt-3" id="profile-change-password">
+                      <form onSubmit={verificar_contraseña}>
+
+                        <div className="row mb-3">
+                          <label for="currentPassword" className="col-md-4 col-lg-3 col-form-label">Contraseña actual</label>
+                          <div className="col-md-8 col-lg-9">
+                            <input name="password" type="password" className="form-control" id="currentPassword" required/>
+                          </div>
+                        </div>
+
+                        <div className="row mb-3">
+                          <label for="newPassword" className="col-md-4 col-lg-3 col-form-label">Nueva contraseña</label>
+                          <div className="col-md-8 col-lg-9">
+                            <input name="newpassword" type="password" className="form-control" id="newPassword" required/>
+                          </div>
+                        </div>
+
+                        <div className="row mb-3">
+                          <label for="renewPassword" className="col-md-4 col-lg-3 col-form-label">Ingrese otra vez la nueva contraseña</label>
+                          <div className="col-md-8 col-lg-9">
+                            <input name="renewpassword" type="password" className="form-control" id="renewPassword" required/>
+                          </div>
+                        </div>
+
+                        <div style={{ fontSize: "small"}}><label>La contraseña puede contener letras (a-z) y números (0-9). Debe tener mínimo 8 caracteres, máximo 40. Mínimo debe contener un carácter en (1) mayúsculas y uno (1) en minúsculas. Mínimo debe contener un número del 0 al 9. La contraseña puede comenzar o contener un guion bajo (_) solamente. Ningún otro carácter está permitido.</label></div>
+                        <br></br>
+                        <div className="text-center">
+                          <button type="submit" className="btn btn-primary">Cambiar contraseña</button>
+                        </div>
+                      </form>
+
+                    </div>
 
                   </div>
 
                 </div>
-              </div>{/*<!-- End Recent Activity -->*/}
+              </div>
+              <br /><br /><br /><br />
 
-              {/*<!-- Budget Report -->*/}
-              <div className="card1">
-                <div className="filter">
-                  <a className="icon" href="#" data-bs-toggle="dropdown"><i className="bi bi-three-dots"></i></a>
-                  <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li className="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
+              
 
-                    <li><a className="dropdown-item" href="#">Today</a></li>
-                    <li><a className="dropdown-item" href="#">This Month</a></li>
-                    <li><a className="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
+            </div>
+            <br /><br /><br />
+            <div className="card">
+              </div>
 
-                <div className="card-body1 pb-0">
-                  <h5 className="card-title1">Budget Report <span>| This Month</span></h5>
-
-                  <div id="budgetChart" style={{ minHeight: "400px" }} className="echart"></div>
-
-                  <script>
-
-                  </script>
-
-                </div>
-              </div>{/*<!-- End Budget Report -->*/}
-
-              {/*<!-- Website Traffic -->*/}
-              <div className="card1">
-                <div className="filter">
-                  <a className="icon" href="#" data-bs-toggle="dropdown"><i className="bi bi-three-dots"></i></a>
-                  <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li className="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a className="dropdown-item" href="#">Today</a></li>
-                    <li><a className="dropdown-item" href="#">This Month</a></li>
-                    <li><a className="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
-                <div className="card-body1 pb-0">
-                  <h5 className="card-title1">Website Traffic <span>| Today</span></h5>
-
-                  <div id="trafficChart" style={{ minHeight: "400px" }} className="echart"></div>
-
-                  <script>
-
-                  </script>
-
-                </div>
-              </div>{/*<!-- End Website Traffic -->*/}
-
-              {/*<!-- News & Updates Traffic -->*/}
-              <div className="card1">
-                <div className="filter">
-                  <a className="icon" href="#" data-bs-toggle="dropdown"><i className="bi bi-three-dots"></i></a>
-                  <ul className="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li className="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a className="dropdown-item" href="#">Today</a></li>
-                    <li><a className="dropdown-item" href="#">This Month</a></li>
-                    <li><a className="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
-                <div className="card-body1 pb-0">
-                  <h5 className="card-title1">News &amp; Updates <span>| Today</span></h5>
-
-                  <div className="news">
-                    <div className="post-item clearfix">
-                      <img src="assets/img/news-1.jpg" alt="" />
-                      <h4><a href="#">Nihil blanditiis at in nihil autem</a></h4>
-                      <p>Sit recusandae non aspernatur laboriosam. Quia enim eligendi sed ut harum...</p>
-                    </div>
-
-                    <div className="post-item clearfix">
-                      <img src="assets/img/news-2.jpg" alt="" />
-                      <h4><a href="#">Quidem autem et impedit</a></h4>
-                      <p>Illo nemo neque maiores vitae officiis cum eum turos elan dries werona nande...</p>
-                    </div>
-
-                    <div className="post-item clearfix">
-                      <img src="assets/img/news-3.jpg" alt="" />
-                      <h4><a href="#">Id quia et et ut maxime similique occaecati ut</a></h4>
-                      <p>Fugiat voluptas vero eaque accusantium eos. Consequuntur sed ipsam et totam...</p>
-                    </div>
-
-                    <div className="post-item clearfix">
-                      <img src="assets/img/news-4.jpg" alt="" />
-                      <h4><a href="#">Laborum corporis quo dara net para</a></h4>
-                      <p>Qui enim quia optio. Eligendi aut asperiores enim repellendusvel rerum cuder...</p>
-                    </div>
-
-                    <div className="post-item clearfix">
-                      <img src="assets/img/news-5.jpg" alt="" />
-                      <h4><a href="#">Et dolores corrupti quae illo quod dolor</a></h4>
-                      <p>Odit ut eveniet modi reiciendis. Atque cupiditate libero beatae dignissimos eius...</p>
-                    </div>
-
-                  </div>{/*<!-- End sidebar recent posts-->*/}
-
-                </div>
-              </div>{/*<!-- End News & Updates -->*/}
-
-            </div>{/*<!-- End Right side columns -->*/}
-
+              <div class="card-body" style={{ width:"50px", backgroundImage: 'url("assets_general/img/Pensamos_en_ti.png")' }}>
+              <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+              </div>
           </div>
+          
         </section>
       </main>{/*<!-- End #main -->*/}
-      <BarraInferior/>
       <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
     </body>
   );
 }
+
+
 
 export default Dashboardinterno;

@@ -12,6 +12,9 @@ import { BrowserRouter as Router, Route, Routes} from "react-router-dom";
 import Pagos from "./pages/Pagos";
 import Paginarender from "./pages/Paginarender";
 import DespliegueCertificado from "./pages/DespliegueCertificado";
+import Dashboardinterno from "./pages/Dashboardinterno";
+import Solicitudesprorroga from "./pages/Solictudesprorroga";
+import Prestamo from "./pages/Prestamo";
 
 const App = () => {
 
@@ -87,6 +90,9 @@ const App = () => {
             <Route path="/solicitudes" element={<Solicitudes/>} />
             <Route path="/dashboard" element={<Dashboard/>} />
             <Route path="/certificadocredito" element={<DespliegueCertificado/>} />
+            <Route path="/dashboardint" element={<Dashboardinterno/>} />
+            <Route path="/Solicitudp" element={<Solicitudesprorroga/>} />
+            <Route path="/prestamo" element={<Prestamo />} />
         </Routes>
         </Router>
     </React.StrictMode>,

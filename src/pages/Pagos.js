@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import React, { useState, useEffect } from "react";
-import { Dropdown, DropdownButton, Form, FormControl, InputGroup, Table, textarea, Button } from "react-bootstrap";
+import { Dropdown, DropdownButton, Form, FormControl, InputGroup, Table, textarea, Button, Pagination } from "react-bootstrap";
 import {
   AiFillDollarCircle,
   AiFillEuroCircle,
@@ -25,6 +25,7 @@ function Pagos() {
     }
   });
   var d = new Date();
+  const usuario_storage = JSON.parse(window.localStorage.getItem("usuario"))
   const [Estado, setEstado] = useState("hidden")
   const [Fondo, setFondo] = useState("assets_general/img/container.png")
   const [Valor, setValor] = useState([])
@@ -32,24 +33,17 @@ function Pagos() {
   const [Cuotas_pen, setCuotas_pen] = useState()
   const [Codigo, setCodigo] = useState()
   const [Estado_sol, setEstado_sol] = useState()
+  const [Id_user, setId_user] = useState(usuario_storage.id)
+  const [Cuotas_pagadas, setCuotas_pagadas] = useState()
+  const [Prorr, setProrr] = useState()
+  const [Cuotas_prorroga, setCuotas_prorroga] = useState()
+  const [Cuota_capital, setCuota_capital] = useState()
+  const [Cuota_total, setCuota_total] = useState()
+  const [Interes, setInteres] = useState()
+  const [Estado_prorr, setEstado_prorr] = useState()
   const [Fecha_actual,setFecha_actual]= useState(d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate())
 
-
-  const cambiarEstado = () => {
-    console.log(Fecha_actual)
-    if(Codigo==undefined || Codigo==0){
-      alert("Debe buscar el credito sobre el que desea hacer la solicitud de Prorroga.")
-      ocultarFormulario();
-    }else{
-      setEstado("visible")
-      setFondo(" ")
-    }
-  };
-
-  const ocultarFormulario = () => {
-    setEstado("hidden")
-    setFondo("assets_general/img/container.png")
-  };
+  
 
   const establecerCodigo= () => {
     var codigo=document.getElementById("id_solicitud").value
@@ -68,39 +62,91 @@ function Pagos() {
       .then((res) => res.json())
       .then((response) => {
           if(response.mensaje==undefined){
-            establecerCodigo()
-            setValor(response.valor);
-            setTiempo(response.cuotas);
-            setCuotas_pen(response.cuotas_pendientes);
-            setEstado_sol(response.estado_solicitud);
+            const usuario_storage = JSON.parse(window.localStorage.getItem("usuario"))
+            if(usuario_storage.id!=response.id_user){
+              alert("Restringido: La referencia que busca no esta asociada a su número de identificación.")
+            }else{
+              establecerCodigo();
+              setValor(response.valor);
+              setTiempo(response.cuotas);
+              setCuotas_pen(response.cuotas_pendientes);
+              if(response.estado_solicitud==0){
+                setEstado_sol("En estudio");
+              }else if(response.estado_solicitud==1){
+                setEstado_sol("Rechazado");
+              }else if(response.estado_solicitud==2){
+                setEstado_sol("Aprobado");
+              }
+              setCuotas_pagadas(response.cuotas_pagadas);
+              if(response.prorroga==true){
+                setProrr(response.cuotas_prorroga);
+                if(response.estado_prorroga==0){
+                  setEstado_prorr("En estudio");
+                }else if(response.estado_prorroga==1){
+                  setEstado_prorr("Rechazado");
+                }else if(response.estado_prorroga==2){
+                  setEstado_prorr("Aprobado");
+                }
+              }else{
+                setProrr("No aplica");
+                setEstado_prorr("No aplica");
+              }
+              setCuota_capital(response.cuota_capital);
+              setInteres(response.interes);
+              setCuota_total(response.cuota_capital+response.interes);
+            }
           }else{
             alert(response.mensaje)
-            ocultarFormulario();
             setValor(" ");
             setTiempo(" ");
             setCodigo(" ")
+            setCuotas_pen(" ");
+            setEstado_sol("");
+            setCuotas_pagadas(" ");
+            setProrr(" ");
+            setEstado_prorr(" ");
+            setCuota_capital(" ");
+            setInteres(" ");
+            setCuota_total(" ");
           }
           })
         
       .catch((error) => console.error("Error:", error))
   };
 
-  const Prorroga = (e) => {
-    var h1="",h2="", h3="", h4="", h5=""
+
+  const Pago = (e) => {
+    if(Codigo==undefined || Codigo==0){
+      alert("Debe buscar el credito sobre el que desea hacer su pago.")
+      window.location.href="/pagos"}
+    
+    var h1="",h2="", h3=""
     var Error=0
+    
   e.preventDefault();
 
-  const prorroga = {
-    prorroga: true,
-    razon_prorroga: document.getElementById("razon_prorroga").value,
-    cuotas_prorroga: document.getElementById("cuotas_prorroga").value
+  const pago = {
+    codigo_pago: "PG"+Math.random(),
+    codigo_credito:Codigo,
+    id_user:usuario_storage.id,
+    valor: Valor,
+    cuotas_pendientes: Cuotas_pen,
+    valor_cuota: Cuota_total,
+    cuota_pagada:document.getElementById("cuota_pagar").value,
+    fecha:Fecha_actual
+
+  };
+ 
+  const cuota_actualizar = {
+    cuotas_pendientes: (parseInt(pago.cuotas_pendientes)-1),
+    cuotas_pagadas:(parseInt(Cuotas_pagadas)+1),
+    valor: (parseInt(pago.valor)-parseInt(document.getElementById("cuota_pagar").value))
   };
 
-
-  const registrarProrroga = () => {
-    fetch(`${process.env.REACT_APP_URL_BACKEND}/actualizar_solicitud/${Codigo}`, {
+  const actualizarSolicitudCuota = () => {
+    fetch(`${process.env.REACT_APP_URL_BACKEND}/actualizar_cuota/${Codigo}`, {
       method: "PUT",
-      body: JSON.stringify(prorroga),
+      body: JSON.stringify(cuota_actualizar),
       headers: {
         "Content-Type": "application/json",
         "auth-token-jwt": token,
@@ -109,50 +155,51 @@ function Pagos() {
       .then((res) => res.json())
       .then((response) => {
         alert(response.mensaje);
-        window.location.href="/consultas"
       })
       .catch((error) => console.error("Error:", error));
   };
 
+  const registrarPago = () => {
+    fetch(`${process.env.REACT_APP_URL_BACKEND}/crear_pago`, {
+      method: "POST",
+      body: JSON.stringify(pago),
+      headers: {
+        "Content-Type": "application/json",
+        "auth-token-jwt": token
+      },
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        alert(response.mensaje);
+        actualizarSolicitudCuota();
+        alert(`Su pago fue registrado con el código ${pago.codigo_pago}.`);
+        window.location.href = "/pagos";
+      })
+      .catch((error) => console.error("Error:", error))
+  };
+
   
-  //validacion solicitado completo
-  //+
-  //Solo letras
-  const valor=/^[a-zA-Z ]*$/g.test(prorroga.razon_prorroga);
-  if( !valor){
+
+  if(pago.cuota_pagada==undefined || pago.cuota_pagada==null|| pago.cuota_pagada==""){
     Error=1
-    h1="Razon: No se permiten solo numeros"
+    h1="Pago: No se permiten campos vacios."
+    }else if(pago.cuota_pagada<pago.valor_cuota){
+      Error=1
+      h2="Pago: El valor ingresado es menor a la cuota establecida. Si ha hecho un acuerdo de pago, ponganse en contacto con un asesor para atender su caso."
+    }
+  const id=/^[0-9\b]+$/g.test(pago.valor);
+  if( !id){
+    Error=1
+    h3="Pago: Solo se permiten numeros"
     
   }
-  const cuota=/^[0-9\b]+$/g.test(prorroga.cuotas_prorroga);
-  if(!cuota){
-    Error=1
-    h2="Cuotas: Se permiten solo numeros"
-    
-  }
-  if(Estado_sol==""||Estado_sol=="RECHAZADO"||Estado_sol=="rechazado"||Estado_sol=="Rechazado"||Estado_sol==undefined ){
-    Error=1
-    h3="Estado: El crédito aun no ha sido aprobado."
-    
-  }
-  var calculo=((25*Cuotas_pen)/100);
-  if(prorroga.cuotas_prorroga>calculo){
-    Error=1
-    h4="Cuotas: No cumplen los parametros establecidos. Ponganse en contacto con el banco."
-  }
-  if(prorroga.cuotas_prorroga>6){
-    Error=1
-    h5="Cuotas: Recuerde que el máximo de cuotas a aplazar son 6."
-    
-  }
-  
-  if(Error == 0){ 
-    registrarProrroga();
+  if(Error == 0){
+    registrarPago();
     
   }else if (Error == 1 ){
-      alert(`Corrija los siguientes errores para poder registrar su solicitud correcta:\n\n${h1}\n${h2}\n${h3}\n${h4}\n${h5}`);
+      alert(`Corrija los siguientes errores para poder registrar su pago correcta:\n\n${h1}\n\n${h2}\n\n${h3}`);
   }
-
+  
 }
 
   return (
@@ -225,7 +272,18 @@ function Pagos() {
                   <p style={{ fontWeight: "bold" }}>Cuotas pendientes</p>
                 </div>
                 <div className="col-sm-7" style={{ textAlign: "left" }}>
-                  <input type="text" name="name" className="form-control" id="name" placeholder="Razon" value={Tiempo} readOnly />
+                  <input type="text" name="name" className="form-control" id="name" placeholder="Razon" value={Cuotas_pen} readOnly />
+                  <br />
+                </div>
+              </div>
+
+              <div className="row ">
+
+                <div className="col-sm-5" style={{ textAlign: "center" }}>
+                  <p style={{ fontWeight: "bold" }}>Valor establecido cuota (capital+intereses)</p>
+                </div>
+                <div className="col-sm-7" style={{ textAlign: "left" }}>
+                  <input type="text" name="name" className="form-control" id="name" placeholder="Razon" value={Cuota_total} readOnly />
                   <br />
                 </div>
               </div>
@@ -235,7 +293,7 @@ function Pagos() {
                   <p style={{ fontWeight: "bold" }}>Cuota a pagar</p>
                 </div>
                 <div className="col-sm-7" style={{ textAlign: "left" }}>
-                  <input type="text" name="name" className="form-control" id="name" placeholder="Razon"/>
+                  <input type="text" name="cuota_pagar" className="form-control" id="cuota_pagar" placeholder="Razon" required/>
                   <br /><br />
                 </div>
               </div>
@@ -256,13 +314,14 @@ function Pagos() {
                 </div>
 
                 <div className="col-lg-3">
-                  <div className="text-center" style={{ boxShadow: "0px 0 6px rgba(5, 1, 37, 0.8)" }}><Button variant="light">Generar historial de pago</Button></div>
+                 
                 </div>
                 <div className="col-lg-3">
-                  <div className="text-center" style={{ boxShadow: "0px 0 6px rgba(5, 1, 37, 0.8)" }}><Button variant="light" >Generar certificados de pago</Button></div>
+                  <div className="text-center" style={{ boxShadow: "0px 0 6px rgba(5, 1, 37, 0.8)" }}><Button variant="light" onClick={Pago}>Registrar pago</Button></div>
                 </div>
+                
                 <div className="col-lg-3">
-                  <div className="text-center" style={{ boxShadow: "0px 0 6px rgba(5, 1, 37, 0.8)" }}><Button variant="light" onClick={cambiarEstado} > Solicitar Prorroga</Button></div>
+                
                   <br /><br />
                 </div>
                 <br /><br />
@@ -270,55 +329,6 @@ function Pagos() {
               </div>
             </div>
           </div>
-
-          <form>
-            <div className="container" style={{ backgroundImage: "url(" + Fondo + ")" }}>
-              <div className="portfolio-info">
-                <div className="row " style={{ visibility: Estado }}>
-
-                  <div className="col-sm-5" style={{ textAlign: "center" }}>
-                    <p style={{ fontWeight: "bold" }}>Razón</p>
-                  </div>
-                  <div className="col-sm-7" style={{ textAlign: "left" }}>
-                    <input type="text" name="razon_prorroga" className="form-control" id="razon_prorroga" placeholder="Razon"/>
-                    <br />
-                  </div>
-                </div>
-
-                <div className="row " style={{ visibility: Estado }}>
-
-                  <div className="col-sm-5" style={{ textAlign: "center" }}>
-                    <p style={{ fontWeight: "bold" }}>Cantidad de cuotas</p>
-                  </div>
-                  <div className="col-sm-7" style={{ textAlign: "left" }}>
-                    <input type="name" name="cuotas_prorroga" className="form-control" id="cuotas_prorroga" placeholder="Razon"/>
-                    <br />
-                  </div>
-                </div>
-
-                <div className="row " style={{ visibility: Estado }}>
-
-                  <div className="col-sm-12" style={{ textAlign: "center" }}>
-                    <p style={{ fontStyle: "italic" }}>Esta cantidad de cuotas no podrá ser mayor al 25% de la cantidad de cuotas restantes. El máximo de cuotas que se permite aplazar es de 6.</p>
-                    <br />
-                  </div>
-                </div>
-                <div className="row" style={{ visibility: Estado }}>
-                  <div className="col-lg-2">
-                  </div>
-                  <div className="col-lg-4">
-                    <div className="text-center" style={{ boxShadow: "0px 0 6px rgba(5, 1, 37, 0.8)" }}><Button variant="light" onClick={Prorroga} >Confirmar</Button></div>
-                  </div>
-                  <div className="col-lg-4">
-                    <div className="text-center" style={{ boxShadow: "0px 0 6px rgba(5, 1, 37, 0.8)" }}><Button variant="light" onClick={ocultarFormulario}>Cancelar</Button></div>
-                    <br /><br />
-                  </div>
-                  <br /><br />
-
-                </div>
-              </div>
-            </div>
-          </form>
 
         </section>{/* <!-- End Contact Section --> */}
       </main>{/* <!-- End #main --> */}

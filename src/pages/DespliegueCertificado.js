@@ -50,14 +50,12 @@ function DespliegueCertificado() {
 
   return (
     <body>
-      <BarraSuperior />
       <main id="main">
         {/* <!-- ======= Breadcrumbs Section ======= -->*/}
-        <section>
+
         <Paginarender nombre={Nombre} id_user={Id_user} codigo={Codigo} cuotas_pen={Cuotas_pen} cuotas_pag={Cuotas_pagadas} cuota_cap={Cuota_capital} interes={Interes} cuota_total={Cuota_total} dia={Dia} mes={Mes} año={Año}/>
-        </section>{/* <!-- End Contact Section --> */}
+        
       </main>{/* <!-- End #main --> */}
-      <BarraInferior />
     </body>
   )
 }

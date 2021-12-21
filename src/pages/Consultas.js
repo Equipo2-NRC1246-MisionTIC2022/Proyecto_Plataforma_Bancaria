@@ -101,36 +101,40 @@ function Consultas() {
       .then((res) => res.json())
       .then((response) => {
           if(response.mensaje==undefined){
-            aprob_cert=1
-            establecerCodigo();
-            setValor(response.valor);
-            setTiempo(response.cuotas);
-            setCuotas_pen(response.cuotas_pendientes);
-            if(response.estado_solicitud==0){
-              setEstado_sol("En estudio");
-            }else if(response.estado_solicitud==1){
-              setEstado_sol("Rechazado");
-            }else if(response.estado_solicitud==2){
-              setEstado_sol("Aprobado");
-            }
-            setCuotas_pagadas(response.cuotas_pagadas);
-            if(response.prorroga==true){
-              setProrr(response.cuotas_prorroga);
-              if(response.estado_prorroga==0){
-                setEstado_prorr("En estudio");
-              }else if(response.estado_prorroga==1){
-                setEstado_prorr("Rechazado");
-              }else if(response.estado_prorroga==2){
-                setEstado_prorr("Aprobado");
-              }
+            const usuario_storage = JSON.parse(window.localStorage.getItem("usuario"))
+            if(usuario_storage.id!=response.id_user){
+              alert("Restringido: La referencia que busca no esta asociada a su número de identificación.")
             }else{
-              setProrr("No aplica");
-              setEstado_prorr("No aplica");
+              aprob_cert=1
+              establecerCodigo();
+              setValor(response.valor);
+              setTiempo(response.cuotas);
+              setCuotas_pen(response.cuotas_pendientes);
+              if(response.estado_solicitud==0){
+                setEstado_sol("En estudio");
+              }else if(response.estado_solicitud==1){
+                setEstado_sol("Rechazado");
+              }else if(response.estado_solicitud==2){
+                setEstado_sol("Aprobado");
+              }
+              setCuotas_pagadas(response.cuotas_pagadas);
+              if(response.prorroga==true){
+                setProrr(response.cuotas_prorroga);
+                if(response.estado_prorroga==0){
+                  setEstado_prorr("En estudio");
+                }else if(response.estado_prorroga==1){
+                  setEstado_prorr("Rechazado");
+                }else if(response.estado_prorroga==2){
+                  setEstado_prorr("Aprobado");
+                }
+              }else{
+                setProrr("No aplica");
+                setEstado_prorr("No aplica");
+              }
+              setCuota_capital(response.cuota_capital);
+              setInteres(response.interes);
+              setCuota_total(response.cuota_capital+response.interes);
             }
-            setCuota_capital(response.cuota_capital);
-            setInteres(response.interes);
-            setCuota_total(response.cuota_capital+response.interes);
-
           }else{
             alert(response.mensaje)
             ocultarFormulario();
@@ -159,7 +163,7 @@ function Consultas() {
   const prorroga = {
     prorroga: true,
     razon_prorroga: document.getElementById("razon_prorroga").value,
-    cuotas_prorroga: document.getElementById("cuotas_prorroga").value
+    cuotas_prorroga: document.getElementById("cuotas_prorroga").value,
   };
 
 
