@@ -20,6 +20,12 @@ function Consultas() {
   let [sw, setSw] = useState(true);
   useEffect(() => {
     window.localStorage.removeItem("codigo");
+    window.localStorage.removeItem("nombre");
+    window.localStorage.removeItem("id_user");
+    window.localStorage.removeItem("cuotas_pagadas");
+    window.localStorage.removeItem("cuotas_pendientes");
+    window.localStorage.removeItem("cuotas_capital");
+    window.localStorage.removeItem("cuotas_interes");
     const token_storage = window.localStorage.getItem("token-jwt");
     if (token_storage) {
       token = token_storage;
@@ -61,7 +67,14 @@ function Consultas() {
       alert("Debe buscar el credito sobre el que desea hacer el certificado.");
       window.location.href="/consultas";
     }else if (aprob_cert=1){
+      const usuario_storage = JSON.parse(window.localStorage.getItem("usuario"))
+      window.localStorage.setItem("nombre", usuario_storage.nombre);
       window.localStorage.setItem("codigo", Codigo);
+      window.localStorage.setItem("id_user", Id_user);
+      window.localStorage.setItem("cuotas_pagadas", Cuotas_pagadas);
+      window.localStorage.setItem("cuotas_pendientes", Cuotas_pen);
+      window.localStorage.setItem("cuotas_capital", Cuota_capital);
+      window.localStorage.setItem("cuotas_interes", Interes);
       window.location.href="/certificadocredito";
     }
   };
@@ -90,7 +103,6 @@ function Consultas() {
           if(response.mensaje==undefined){
             aprob_cert=1
             establecerCodigo();
-            window.localStorage.setItem("certificado", response);
             setValor(response.valor);
             setTiempo(response.cuotas);
             setCuotas_pen(response.cuotas_pendientes);
