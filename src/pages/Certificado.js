@@ -2,66 +2,28 @@ import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/render
 import React, { useState, useEffect } from "react";
 import { PDFViewer } from '@react-pdf/renderer';
 
-function Certificado() {
-    const [Cuotas_pen, setCuotas_pen] = useState()
-    const [Codigo, setCodigo] = useState()
-    const [Cuotas_pagadas, setCuotas_pagadas] = useState()
-    const [Cuota_capital, setCuota_capital] = useState()
-    const [Cuota_total, setCuota_total] = useState()
-    const [Interes, setInteres] = useState()
-
-    var d = new Date();
-    const [Dia,setDia]= useState(d.getDate())
-    const [Mes,setMes]= useState(d.getMonth()+1)
-    const [Año,setAño]= useState(d.getFullYear())
-
-    useEffect(() => {
-
-      const token_storage = window.localStorage.getItem("token-jwt");
-      const usuario_storage = JSON.parse(window.localStorage.getItem("usuario"))
-      const codigo_consulta = JSON.parse(window.localStorage.getItem("codigo"))
-      if (token_storage) {
-        token = token_storage;
-        usuario=usuario_storage;
-        setCodigo(codigo_consulta)
-        consultarSolicitud(); 
-        
-      } else {
-        window.location.href="/";
-      }
-    });
-    const [Id_user, setId_user] = useState(usuario.id)
-    const [Nombre, setNombre] = useState(usuario.nombre)
-
-    var h1=0
-    const consultarSolicitud = () => {
-      h1=Codigo
-      fetch(`${process.env.REACT_APP_URL_BACKEND}/get_solicitud/${h1}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "auth-token-jwt": token
-        },
-      })
-        .then((res) => res.json())
-        .then((response) => {
-          setValor(response.valor);
-          setTiempo(response.cuotas);
-          setCuotas_pen(response.cuotas_pendientes);
-          setCuotas_pagadas(response.cuotas_pagadas);
-          setCuota_capital(response.cuota_capital);
-          setInteres(response.interes);
-          setCuota_total(response.cuota_capital+response.interes);
-        })
-        .catch((error) => console.error("Error:", error))
-    };
+function Certificado({nombre, id_user, codigo, cuotas_pen, cuotas_pag, cuota_cap, interes, cuota_total, dia, mes, año}) {
+    const [Cuotas_pen, setCuotas_pen] = useState(cuotas_pen)
+    const [Codigo, setCodigo] = useState(codigo)
+    const [Cuotas_pagadas, setCuotas_pagadas] = useState(cuotas_pag)
+    const [Cuota_capital, setCuota_capital] = useState(cuota_cap)
+    const [Cuota_total, setCuota_total] = useState(cuota_total)
+    const [Interes, setInteres] = useState(interes)
+    const [Id_user, setId_user] = useState(id_user)
+    const [Nombre, setNombre] = useState(nombre)
+    const [Dia,setDia]= useState(dia)
+    const [Mes,setMes]= useState(mes)
+    const [Año,setAño]= useState(año)
+    
         
     const styles = StyleSheet.create({
         body: {
         paddingTop: 35,
         paddingBottom: 65,
         paddingHorizontal: 35,
+        letterHeight: "20%",
         },
+       
         title: {
         fontSize: 24,
         textAlign: 'center',
@@ -83,6 +45,13 @@ function Certificado() {
         textAlign: 'justify',
         fontFamily: 'Times-Roman'
         },
+
+        text2: {
+          margin: 12,
+          fontSize: 14,
+          textAlign: 'center',
+          fontFamily: 'Times-Roman'
+          },
         image: {
         marginVertical: 15,
         marginHorizontal: 100,
@@ -90,6 +59,17 @@ function Certificado() {
         left:"90px",
         top:"-10px"
         },
+
+        image2: {
+          marginVertical: 15,
+          marginHorizontal: 100,
+          height:"25vh",
+          width:"80vh",
+          position:"absolute",
+          top:"490px",
+          left:"-140px",
+          right:"20px",
+          },
         header: {
         fontSize: 12,
         marginBottom: 20,
@@ -114,25 +94,25 @@ return (
     <Document>
     <Page size="LETTER" style={styles.body}>
       <View>
-
         <Image style={styles.image} src="assets_general/img/Citibank.png"
         />
-      </View>
-      <View>
-        <Text style={styles.text}>La División Nacional Sucursal Caribe de Citigroup Inc certifica que {Nombre} identificado
+        
+        <Text style={styles.text2}>La División Nacional Sucursal Caribe de Citigroup Inc certifica que </Text>
+        <Text style={styles.author}></Text>
+        <Text style={styles.author}></Text>
+        <Text style={styles.text}>{Nombre} identificado
         con número de identificación {Id_user} tiene en este banco registrado el crédito con código {Codigo} del cual
         tiene {Cuotas_pagadas} cuota(s) pagada(s) y {Cuotas_pen} cuota(s) pendiente(s) por pagar,
-        teniendo en cuenta una valor de cuota de {Cuota_total}, lo cual contempla un valor de capital de ${Cuota_capital} pesos y un valor
-        de intereses de ${Interes} pesos.</Text>
+        teniendo en cuenta una valor de cuota de {Cuota_total}, lo cual contempla un valor de capital de $ {Cuota_capital} pesos y un valor
+        de intereses de $ {Interes} pesos.</Text>
         <Text style={styles.author}></Text>
         <Text style={styles.author}></Text>
-        <Text style={styles.author}></Text>
-        <Text style={styles.author}>Dado en Barranquilla a los {Dia} dias del mes de {Mes} del año {Año}. </Text>
-        <Text style={styles.author}></Text>
-        <Text style={styles.author}></Text>
+        <Text style={styles.text}>Dado en Barranquilla a los {Dia} dias del mes {Mes} del año {Año}  </Text>
+        <Text style={styles.text}></Text>
         <Text style={styles.author}></Text>
         <Text style={styles.author}></Text>
-        <Text style={styles.author}>Citibank - Colombia S.A Citi // Citigroup Inc. Carrera 56B # 78 - 06 Medellin, Colombia</Text>
+        <Image style={styles.image2} src="assets_general/img/esquema.png"
+        />
       </View>
       <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) => (
         `${pageNumber} / ${totalPages}`

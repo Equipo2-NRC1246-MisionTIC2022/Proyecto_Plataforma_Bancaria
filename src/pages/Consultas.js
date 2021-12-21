@@ -12,13 +12,14 @@ import {
 } from "react-icons/ai";
 import BarraInferior from "../components/BarraInferior";
 import BarraSuperior from "../components/BarraSuperior";
+import Paginarender from "./Paginarender";
 
 function Consultas() {
 
   let [token, setToken] = useState('');
   let [sw, setSw] = useState(true);
   useEffect(() => {
-
+    window.localStorage.removeItem("codigo");
     const token_storage = window.localStorage.getItem("token-jwt");
     if (token_storage) {
       token = token_storage;
@@ -88,7 +89,8 @@ function Consultas() {
       .then((response) => {
           if(response.mensaje==undefined){
             aprob_cert=1
-            establecerCodigo()
+            establecerCodigo();
+            window.localStorage.setItem("certificado", response);
             setValor(response.valor);
             setTiempo(response.cuotas);
             setCuotas_pen(response.cuotas_pendientes);
@@ -368,10 +370,10 @@ function Consultas() {
                 </div>
 
                 <div className="col-lg-3">
-                  <div className="text-center" style={{ boxShadow: "0px 0 6px rgba(5, 1, 37, 0.8)" }}><Button variant="light" onClick={certificar}>Generar historial de pago</Button></div>
+                  <div className="text-center" style={{ boxShadow: "0px 0 6px rgba(5, 1, 37, 0.8)" }}><Button variant="light">Generar historial de pago</Button></div>
                 </div>
                 <div className="col-lg-3">
-                  <div className="text-center" style={{ boxShadow: "0px 0 6px rgba(5, 1, 37, 0.8)" }}><Button variant="light" >Generar certificados de pago</Button></div>
+                  <div className="text-center" style={{ boxShadow: "0px 0 6px rgba(5, 1, 37, 0.8)" }}><Button variant="light"onClick={certificar}> Generar certificados de pago</Button></div>
                 </div>
                 <div className="col-lg-3">
                   <div className="text-center" style={{ boxShadow: "0px 0 6px rgba(5, 1, 37, 0.8)" }}><Button variant="light" onClick={cambiarEstado} > Solicitar Prorroga</Button></div>
